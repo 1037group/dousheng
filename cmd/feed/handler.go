@@ -16,7 +16,6 @@ type FeedServiceImpl struct{}
 func (s *FeedServiceImpl) Feed(ctx context.Context, req *douyin_feed.FeedRequest) (resp *douyin_feed.FeedResponse, err error) {
 
 	klog.CtxInfof(context.Background(), "FeedRequest %s", req.String())
-
 	curTime := time.Now().Unix()
 	videoList := new([]*douyin_feed.Video)
 	copier.Copy(videoList, test.DemoVideos)

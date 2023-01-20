@@ -8,6 +8,7 @@ import (
 	"github.com/1037group/dousheng/cmd/api/biz/rpc"
 	"github.com/1037group/dousheng/kitex_gen/douyin_feed"
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	"github.com/jinzhu/copier"
 )
@@ -26,6 +27,7 @@ func Feed(ctx context.Context, c *app.RequestContext) {
 		LatestTime: req.LatestTime,
 		Token:      req.Token,
 	})
+	hlog.CtxInfof(ctx, "api call rpc end.")
 	if err != nil {
 		c.String(consts.StatusInternalServerError, err.Error())
 		return
@@ -81,6 +83,182 @@ func User(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp := new(douyin_api.UserResponse)
+
+	c.JSON(consts.StatusOK, resp)
+}
+
+// PublishAction .
+// @router /douyin/publish/action [POST]
+func PublishAction(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req douyin_api.PublishActionRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	resp := new(douyin_api.PublishActionResponse)
+
+	c.JSON(consts.StatusOK, resp)
+}
+
+// PublishList .
+// @router /douyin/publish/list [GET]
+func PublishList(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req douyin_api.PublishListRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	resp := new(douyin_api.PublishListResponse)
+
+	c.JSON(consts.StatusOK, resp)
+}
+
+// FavoriteAction .
+// @router /douyin/favorite/action [POST]
+func FavoriteAction(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req douyin_api.FavoriteActionRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	resp := new(douyin_api.FavoriteActionResponse)
+
+	c.JSON(consts.StatusOK, resp)
+}
+
+// FavoriteList .
+// @router douyin/favorite/list [GET]
+func FavoriteList(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req douyin_api.FavoriteListRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	resp := new(douyin_api.FavoriteListResponse)
+
+	c.JSON(consts.StatusOK, resp)
+}
+
+// CommentAction .
+// @router douyin/comment/action [POST]
+func CommentAction(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req douyin_api.CommentActionRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	resp := new(douyin_api.CommentActionResponse)
+
+	c.JSON(consts.StatusOK, resp)
+}
+
+// CommentList .
+// @router douyin/comment/list [GET]
+func CommentList(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req douyin_api.CommentListRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	resp := new(douyin_api.CommentListResponse)
+
+	c.JSON(consts.StatusOK, resp)
+}
+
+// RelationAction .
+// @router douyin/relation/action [POST]
+func RelationAction(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req douyin_api.RelationActionRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	resp := new(douyin_api.RelationActionResponse)
+
+	c.JSON(consts.StatusOK, resp)
+}
+
+// RelationFollowList .
+// @router douyin/relation/follow/list [GET]
+func RelationFollowList(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req douyin_api.RelationFollowListRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	resp := new(douyin_api.RelationFollowListResponse)
+
+	c.JSON(consts.StatusOK, resp)
+}
+
+// RelationFriendList .
+// @router douyin/relation/friend/list [GET]
+func RelationFriendList(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req douyin_api.RelationFriendListRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	resp := new(douyin_api.RelationFriendListResponse)
+
+	c.JSON(consts.StatusOK, resp)
+}
+
+// MessageChat .
+// @router douyin/message/chat [GET]
+func MessageChat(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req douyin_api.MessageChatRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	resp := new(douyin_api.MessageChatResponse)
+
+	c.JSON(consts.StatusOK, resp)
+}
+
+// MessageAction .
+// @router douyin/message/action [POST]
+func MessageAction(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req douyin_api.MessageActionRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	resp := new(douyin_api.MessageActionResponse)
 
 	c.JSON(consts.StatusOK, resp)
 }

@@ -15,12 +15,10 @@ services:
 
   # ETCD TODO
   Etcd:
-    image: 'pachyderm/etcd:v3.5.0-alpha.0'
-    platform: linux/arm64/v8 # Mac M1 enable, linux disable
+    image: 'bitnami/etcd:latest'
     environment:
       - ALLOW_NONE_AUTHENTICATION=yes
       - ETCD_ADVERTISE_CLIENT_URLS=http://etcd:2379
-      - ETCD_UNSUPPORTED_ARCH=arm64
     ports:
       - "2379:2379"
       - "2380:2380"
@@ -81,3 +79,14 @@ services:
       - GF_AUTH_DISABLE_LOGIN_FORM=true
     ports:
       - "3000:3000"
+
+#  #
+#  portainer:
+#    image: portainer/portainer
+#    container_name: portainer
+#    restart: always
+#    volumes:
+#      - /var/run/docker.sock:/var/run/docker.sock
+#      - /tmp/portainer_data:/data
+#    ports:
+#      - 9000:9000

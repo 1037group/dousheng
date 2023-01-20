@@ -6,7 +6,7 @@ replace github.com/apache/thrift => github.com/apache/thrift v0.13.0
 
 require (
 	github.com/apache/thrift v0.13.0
-	github.com/cloudwego/hertz v0.5.0
+	github.com/cloudwego/hertz v0.5.1
 	github.com/cloudwego/kitex v0.4.4
 	github.com/hertz-contrib/gzip v0.0.1
 	github.com/hertz-contrib/jwt v1.0.1
@@ -39,6 +39,7 @@ require (
 	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
+	github.com/golang-jwt/jwt/v4 v4.4.1 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/pprof v0.0.0-20220608213341-c488b8fa1db3 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.7.0 // indirect
@@ -53,6 +54,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/nyaruka/phonenumbers v1.0.55 // indirect
 	github.com/oleiade/lane v1.0.1 // indirect
+	github.com/savsgio/gotils v0.0.0-20220530130905-52f3993e8d6d // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/tidwall/gjson v1.14.3 // indirect
 	github.com/tidwall/match v1.1.1 // indirect

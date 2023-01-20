@@ -3,3 +3,5 @@ init_api:
 
 update_api:
 	hz update -idl ../../idl/api.thrift
+
+

@@ -45,3 +45,93 @@ func _feedMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _commentMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _comment_ctionMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _commentlistMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _favoriteMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _favorite_ctionMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _favoritelistMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _messageMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _message_ctionMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _messagechatMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _publishMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _publish_ctionMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _publishlistMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _relationMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _relation_ctionMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _followMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _relationfollowlistMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _friendMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _relationfriendlistMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
