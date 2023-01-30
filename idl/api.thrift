@@ -16,7 +16,7 @@ namespace go douyin_api
 * */
 
 struct FeedRequest {
-    1: optional string latest_time
+    1: optional i64 latest_time
     2: optional string token
 }
 
@@ -44,8 +44,8 @@ struct FeedResponse {
 *
 * */
 struct UserRegisterRequest {
-    1: required string username
-    2: required string password
+    1: required string username (api.query="username", api.vd="len($) > 0")
+    2: required string password (api.query="password", api.vd="len($) > 0")
 }
 
 struct UserRegisterResponse {
@@ -56,8 +56,8 @@ struct UserRegisterResponse {
 }
 
 struct UserLoginRequest {
-    1: required string username
-    2: required string password
+    1: required string username (api.query="username", api.vd="len($) > 0")
+    2: required string password (api.query="password", api.vd="len($) > 0")
 }
 
 struct UserLoginResponse {
@@ -257,9 +257,9 @@ struct MessageActionResponse {
 service ApiService {
     FeedResponse Feed(1: FeedRequest req) (api.get="/douyin/feed")
 
+    UserResponse User(1: UserRequest req) (api.get="/douyin/user")
     UserLoginResponse UserLogin(1: UserLoginRequest req) (api.post="/douyin/user/login")
     UserRegisterResponse UserRegister(1: UserRegisterRequest req) (api.post="/douyin/user/register")
-    UserResponse User(1: UserRequest req) (api.get="/douyin/user")
 
     PublishActionResponse PublishAction(1: PublishActionRequest req) (api.post="/douyin/publish/action")
     PublishListResponse PublishList(1: PublishListRequest req) (api.get="/douyin/publish/list")

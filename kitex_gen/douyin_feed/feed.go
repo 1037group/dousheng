@@ -11,7 +11,7 @@ import (
 )
 
 type FeedRequest struct {
-	LatestTime *string `thrift:"latest_time,1,optional" frugal:"1,optional,string" json:"latest_time,omitempty"`
+	LatestTime *int64  `thrift:"latest_time,1,optional" frugal:"1,optional,i64" json:"latest_time,omitempty"`
 	Token      *string `thrift:"token,2,optional" frugal:"2,optional,string" json:"token,omitempty"`
 }
 
@@ -23,9 +23,9 @@ func (p *FeedRequest) InitDefault() {
 	*p = FeedRequest{}
 }
 
-var FeedRequest_LatestTime_DEFAULT string
+var FeedRequest_LatestTime_DEFAULT int64
 
-func (p *FeedRequest) GetLatestTime() (v string) {
+func (p *FeedRequest) GetLatestTime() (v int64) {
 	if !p.IsSetLatestTime() {
 		return FeedRequest_LatestTime_DEFAULT
 	}
@@ -40,7 +40,7 @@ func (p *FeedRequest) GetToken() (v string) {
 	}
 	return *p.Token
 }
-func (p *FeedRequest) SetLatestTime(val *string) {
+func (p *FeedRequest) SetLatestTime(val *int64) {
 	p.LatestTime = val
 }
 func (p *FeedRequest) SetToken(val *string) {
@@ -80,7 +80,7 @@ func (p *FeedRequest) Read(iprot thrift.TProtocol) (err error) {
 
 		switch fieldId {
 		case 1:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.I64 {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -130,7 +130,7 @@ ReadStructEndError:
 }
 
 func (p *FeedRequest) ReadField1(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadString(); err != nil {
+	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
 		p.LatestTime = &v
@@ -182,10 +182,10 @@ WriteStructEndError:
 
 func (p *FeedRequest) writeField1(oprot thrift.TProtocol) (err error) {
 	if p.IsSetLatestTime() {
-		if err = oprot.WriteFieldBegin("latest_time", thrift.STRING, 1); err != nil {
+		if err = oprot.WriteFieldBegin("latest_time", thrift.I64, 1); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteString(*p.LatestTime); err != nil {
+		if err := oprot.WriteI64(*p.LatestTime); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -240,14 +240,14 @@ func (p *FeedRequest) DeepEqual(ano *FeedRequest) bool {
 	return true
 }
 
-func (p *FeedRequest) Field1DeepEqual(src *string) bool {
+func (p *FeedRequest) Field1DeepEqual(src *int64) bool {
 
 	if p.LatestTime == src {
 		return true
 	} else if p.LatestTime == nil || src == nil {
 		return false
 	}
-	if strings.Compare(*p.LatestTime, *src) != 0 {
+	if *p.LatestTime != *src {
 		return false
 	}
 	return true

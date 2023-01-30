@@ -42,13 +42,24 @@ func initUser() {
 }
 
 // CheckUser check user info
-func CheckUser(ctx context.Context, req *douyin_user.UserRequest) (int64, error) {
-	resp, err := userClient.User(ctx, req)
+func CheckUser(ctx context.Context, req *douyin_user.UserLoginRequest) (int64, error) {
+	resp, err := userClient.UserLogin(ctx, req)
 	if err != nil {
 		return 0, err
 	}
 	if resp.StatusCode != 0 {
 		return 0, errno.NewErrNo(resp.StatusCode, *resp.StatusMsg)
 	}
-	return resp.User.Id, nil
+	return resp.UserId, nil
+}
+
+func UserRegister(ctx context.Context, req *douyin_user.UserRegisterRequest) (resp *douyin_user.UserRegisterResponse, err error) {
+	resp, err = userClient.UserRegister(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode != 0 {
+		return nil, errno.NewErrNo(resp.StatusCode, *resp.StatusMsg)
+	}
+	return resp, nil
 }

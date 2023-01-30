@@ -3,7 +3,7 @@ namespace go douyin_feed
 include "user.thrift"
 
 struct FeedRequest {
-    1: optional string latest_time
+    1: optional i64 latest_time
     2: optional string token
 }
 

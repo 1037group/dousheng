@@ -135,3 +135,8 @@ func _relationfriendlistMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _testMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

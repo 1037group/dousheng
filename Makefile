@@ -2,7 +2,7 @@
 
 SUBDIRS = ./cmd/comment ./cmd/favorite ./cmd/feed ./cmd/message ./cmd/publish ./cmd/relation ./cmd/user
 
-idl:
+update:
 	kitex --thrift-plugin validator -module github.com/1037group/dousheng idl/comment.thrift # execute in the project root directory
 
 	kitex --thrift-plugin validator -module github.com/1037group/dousheng idl/favorite.thrift # execute in the project root directory

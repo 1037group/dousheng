@@ -16,7 +16,7 @@ import (
 func Init() {
 	rpc.Init()
 	mw.InitJWT()
-	// hlog init
+	// klog init
 	klog.SetLevel(klog.LevelInfo)
 }
 

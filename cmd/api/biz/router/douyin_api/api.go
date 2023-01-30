@@ -20,7 +20,6 @@ func Register(r *server.Hertz) {
 	{
 		_douyin := root.Group("/douyin", _douyinMw()...)
 		_douyin.GET("/feed", append(_feedMw(), douyin_api.Feed)...)
-		_douyin.GET("/user", append(_userMw(), douyin_api.User)...)
 		{
 			_comment := _douyin.Group("/comment", _commentMw()...)
 			_comment.POST("/action", append(_comment_ctionMw(), douyin_api.CommentAction)...)
@@ -53,10 +52,9 @@ func Register(r *server.Hertz) {
 				_friend.GET("/list", append(_relationfriendlistMw(), douyin_api.RelationFriendList)...)
 			}
 		}
-		{
-			_user0 := _douyin.Group("/user", _user0Mw()...)
-			_user0.POST("/login", append(_userloginMw(), douyin_api.UserLogin)...)
-			_user0.POST("/register", append(_userregisterMw(), douyin_api.UserRegister)...)
-		}
+		_douyin.GET("/user", append(_userMw(), douyin_api.User)...)
+		_user := _douyin.Group("/user", _userMw()...)
+		_user.POST("/login", append(_userloginMw(), douyin_api.UserLogin)...)
+		_user.POST("/register", append(_userregisterMw(), douyin_api.UserRegister)...)
 	}
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/1037group/dousheng/pkg/errno"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/utils"
+	"github.com/cloudwego/kitex/pkg/klog"
 	"net/http"
 	"time"
 
@@ -44,23 +45,30 @@ func InitJWT() {
 		},
 		Authenticator: func(ctx context.Context, c *app.RequestContext) (interface{}, error) {
 			var err error
-			var req douyin_user.UserRequest
+			var req douyin_api.UserLoginRequest
 			if err = c.BindAndValidate(&req); err != nil {
+				klog.CtxErrorf(ctx, err.Error())
 				return "", jwt.ErrMissingLoginValues
 			}
-			if req.UserId == 0 || len(req.Token) == 0 {
+			if len(req.Username) == 0 || len(req.Password) == 0 {
+				klog.CtxErrorf(ctx, err.Error())
 				return "", jwt.ErrMissingLoginValues
 			}
-			return rpc.CheckUser(context.Background(), &douyin_user.UserRequest{
-				UserId: req.UserId,
-				Token:  req.Token,
+			userId, err := rpc.CheckUser(ctx, &douyin_user.UserLoginRequest{
+				Username: req.Username,
+				Password: req.Password,
 			})
+			if err == nil {
+				c.Set("user_id", userId)
+			}
+			return userId, err
 		},
 		LoginResponse: func(ctx context.Context, c *app.RequestContext, code int, token string, expire time.Time) {
 			c.JSON(http.StatusOK, utils.H{
-				"code":   errno.Success.ErrCode,
-				"token":  token,
-				"expire": expire.Format(time.RFC3339),
+				"status_code": errno.Success.ErrCode,
+				"token":       token,
+				"user_id":     c.Keys["user_id"],
+				"status_msg":  "success",
 			})
 		},
 		Unauthorized: func(ctx context.Context, c *app.RequestContext, code int, message string) {

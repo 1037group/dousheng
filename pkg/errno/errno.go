@@ -31,7 +31,8 @@ var (
 	ServiceErr             = NewErrNo(int32(10001), "Service is unable to start successfully")
 	ParamErr               = NewErrNo(int32(10002), "Wrong Parameter has been given")
 	UserAlreadyExistErr    = NewErrNo(int32(10003), "User already exists")
-	AuthorizationFailedErr = NewErrNo(int32(10004), "Authorization failed")
+	UserNotExistErr        = NewErrNo(int32(10004), "User not exists")
+	AuthorizationFailedErr = NewErrNo(int32(10005), "Authorization failed")
 )
 
 // ConvertErr convert error to Errno

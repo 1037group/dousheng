@@ -5,12 +5,14 @@ package douyin_api
 import (
 	"context"
 	douyin_api "github.com/1037group/dousheng/cmd/api/biz/model/douyin_api"
+	"github.com/1037group/dousheng/cmd/api/biz/mw"
 	"github.com/1037group/dousheng/cmd/api/biz/rpc"
 	"github.com/1037group/dousheng/kitex_gen/douyin_feed"
+	"github.com/1037group/dousheng/kitex_gen/douyin_user"
+	"github.com/1037group/dousheng/pack"
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
-	"github.com/jinzhu/copier"
+	"github.com/cloudwego/kitex/pkg/klog"
 )
 
 // Feed .
@@ -23,40 +25,30 @@ func Feed(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
-	rpcResp, err := rpc.Feed(context.Background(), &douyin_feed.FeedRequest{
+
+	rpcResp, err := rpc.Feed(ctx, &douyin_feed.FeedRequest{
 		LatestTime: req.LatestTime,
 		Token:      req.Token,
 	})
-	hlog.CtxInfof(ctx, "api call rpc end.")
+	klog.CtxInfof(ctx, "api call rpc end. rpcResp: %+v", rpcResp)
 	if err != nil {
 		c.String(consts.StatusInternalServerError, err.Error())
 		return
 	}
 
-	resp := new(douyin_api.FeedResponse)
-	copier.Copy(&resp, &rpcResp)
+	resp := pack.FeedResponseRpc2Api(rpcResp)
 
 	c.JSON(consts.StatusOK, resp)
 }
 
 // UserLogin .
-// @router /douin/user/login [POST]
+// @router /douyin/user/login [POST]
 func UserLogin(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req douyin_api.UserLoginRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
-		return
-	}
-
-	resp := new(douyin_api.UserLoginResponse)
-
-	c.JSON(consts.StatusOK, resp)
+	mw.JwtMiddleware.LoginHandler(ctx, c)
 }
 
 // UserRegister .
-// @router /douin/user/register [POST]
+// @router /douyin/user/register [POST]
 func UserRegister(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req douyin_api.UserRegisterRequest
@@ -66,13 +58,29 @@ func UserRegister(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
+	rpcResp, err := rpc.UserRegister(ctx, &douyin_user.UserRegisterRequest{
+		Username: req.Username,
+		Password: req.Password,
+	})
+
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	token, _, err := mw.JwtMiddleware.TokenGenerator(rpcResp.UserId)
+
 	resp := new(douyin_api.UserRegisterResponse)
+	resp.Token = token
+	resp.UserID = rpcResp.UserId
+	resp.StatusCode = rpcResp.StatusCode
+	resp.StatusMsg = rpcResp.StatusMsg
 
 	c.JSON(consts.StatusOK, resp)
 }
 
 // User .
-// @router /douin/user [GET]
+// @router /douyin/user [GET]
 func User(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req douyin_api.UserRequest
