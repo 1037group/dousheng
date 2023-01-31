@@ -7,8 +7,8 @@ import (
 	"github.com/1037group/dousheng/pkg/consts"
 	"github.com/1037group/dousheng/pkg/errno"
 	"github.com/1037group/dousheng/pkg/mw"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/kitex/client"
-	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/kitex-contrib/obs-opentelemetry/provider"
 	"github.com/kitex-contrib/obs-opentelemetry/tracing"
@@ -43,7 +43,7 @@ func initFeed() {
 }
 
 func Feed(ctx context.Context, req *douyin_feed.FeedRequest) (*douyin_feed.FeedResponse, error) {
-	klog.CtxInfof(context.Background(), "FeedRequest %s", req.String())
+	hlog.CtxInfof(context.Background(), "FeedRequest %s", req.String())
 	resp, err := feedClient.Feed(ctx, req)
 	if err != nil {
 		return nil, err

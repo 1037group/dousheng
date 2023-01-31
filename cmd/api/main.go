@@ -6,7 +6,7 @@ import (
 	"github.com/1037group/dousheng/cmd/api/biz/mw"
 	"github.com/1037group/dousheng/cmd/api/biz/rpc"
 	"github.com/cloudwego/hertz/pkg/app/server"
-	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/hertz-contrib/obs-opentelemetry/tracing"
 	"github.com/hertz-contrib/pprof"
 )
@@ -16,8 +16,8 @@ import (
 func Init() {
 	rpc.Init()
 	mw.InitJWT()
-	// klog init
-	klog.SetLevel(klog.LevelInfo)
+	// hlog init
+	hlog.SetLevel(hlog.LevelInfo)
 }
 
 func main() {

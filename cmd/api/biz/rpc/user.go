@@ -63,3 +63,14 @@ func UserRegister(ctx context.Context, req *douyin_user.UserRegisterRequest) (re
 	}
 	return resp, nil
 }
+
+func UserInfo(ctx context.Context, req *douyin_user.UserRequest) (resp *douyin_user.UserResponse, err error) {
+	resp, err = userClient.User(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode != 0 {
+		return nil, errno.NewErrNo(resp.StatusCode, *resp.StatusMsg)
+	}
+	return resp, nil
+}

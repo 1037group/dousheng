@@ -3,7 +3,7 @@ namespace go douyin_comment
 include "user.thrift"
 
 struct CommentActionRequest {
-    1: required string token
+    1: required i64 user_id
     2: required i64 video_id
     3: required i32 action_type
     4: optional string comment_text
@@ -24,8 +24,7 @@ struct Comment {
 }
 
 struct CommentListRequest {
-    1: required string token
-    2: required i64 video_id
+    1: required i64 video_id
 }
 
 struct CommentListResponse {

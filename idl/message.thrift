@@ -1,7 +1,7 @@
 namespace go douyin_message
 
 struct MessageChatRequest {
-    1: required string token
+    1: required i64 user_id
     2: required i64 to_user_id
 }
 
@@ -18,7 +18,7 @@ struct Message {
 }
 
 struct MessageActionRequest {
-    1: required string token
+    1: required i64 user_id
     2: required i64 to_user_id
     3: required i32 action_type
     4: required string content

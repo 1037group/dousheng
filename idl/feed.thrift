@@ -4,7 +4,7 @@ include "user.thrift"
 
 struct FeedRequest {
     1: optional i64 latest_time
-    2: optional string token
+    2: optional i64 user_id
 }
 
 struct Video {

@@ -5,8 +5,8 @@ import (
 	"github.com/1037group/dousheng/pkg/consts"
 	"github.com/1037group/dousheng/pkg/errno"
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/hertz/pkg/common/utils"
-	"github.com/cloudwego/kitex/pkg/klog"
 	"net/http"
 	"time"
 
@@ -23,7 +23,7 @@ var JwtMiddleware *jwt.HertzJWTMiddleware
 func InitJWT() {
 	JwtMiddleware, _ = jwt.New(&jwt.HertzJWTMiddleware{
 		Key:           []byte(consts.SecretKey),
-		TokenLookup:   "header: Authorization, query: token, cookie: jwt",
+		TokenLookup:   "query: token",
 		TokenHeadName: "Bearer",
 		TimeFunc:      time.Now,
 		Timeout:       time.Hour,
@@ -47,11 +47,11 @@ func InitJWT() {
 			var err error
 			var req douyin_api.UserLoginRequest
 			if err = c.BindAndValidate(&req); err != nil {
-				klog.CtxErrorf(ctx, err.Error())
+				hlog.CtxErrorf(ctx, err.Error())
 				return "", jwt.ErrMissingLoginValues
 			}
 			if len(req.Username) == 0 || len(req.Password) == 0 {
-				klog.CtxErrorf(ctx, err.Error())
+				hlog.CtxErrorf(ctx, err.Error())
 				return "", jwt.ErrMissingLoginValues
 			}
 			userId, err := rpc.CheckUser(ctx, &douyin_user.UserLoginRequest{

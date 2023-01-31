@@ -101,13 +101,38 @@ func (s *UserServiceImpl) UserRegister(ctx context.Context, req *douyin_user.Use
 		StatusCode: 0,
 		StatusMsg:  nil,
 		UserId:     users[0].UserId,
-		Token:      "",
 	}
 	return &resp, nil
 }
 
 // User implements the UserServiceImpl interface.
 func (s *UserServiceImpl) User(ctx context.Context, req *douyin_user.UserRequest) (resp *douyin_user.UserResponse, err error) {
-	// TODO: Your code here...
+	klog.CtxInfof(ctx, "[User] %+v", req)
+
+	userIDs := []int64{req.UserId}
+	users, err := db.MGetUserByID(ctx, userIDs)
+	if err != nil {
+		klog.CtxErrorf(ctx, err.Error())
+		return nil, err
+	}
+	if len(users) == 0 {
+		klog.CtxErrorf(ctx, errno.UserNotExistErr.ErrMsg)
+		return nil, errno.UserNotExistErr
+	}
+
+	// TODO IsFollow
+	user := douyin_user.User{
+		Id:            users[0].UserId,
+		Name:          users[0].UserName,
+		FollowCount:   &users[0].UserFollowCount,
+		FollowerCount: &users[0].UserFollowerCount,
+		IsFollow:      false,
+	}
+	resp = &douyin_user.UserResponse{
+		StatusCode: 0,
+		StatusMsg:  nil,
+		User:       &user,
+	}
+
 	return
 }

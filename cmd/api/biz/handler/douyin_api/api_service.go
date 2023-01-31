@@ -11,8 +11,8 @@ import (
 	"github.com/1037group/dousheng/kitex_gen/douyin_user"
 	"github.com/1037group/dousheng/pack"
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
-	"github.com/cloudwego/kitex/pkg/klog"
 )
 
 // Feed .
@@ -28,9 +28,8 @@ func Feed(ctx context.Context, c *app.RequestContext) {
 
 	rpcResp, err := rpc.Feed(ctx, &douyin_feed.FeedRequest{
 		LatestTime: req.LatestTime,
-		Token:      req.Token,
 	})
-	klog.CtxInfof(ctx, "api call rpc end. rpcResp: %+v", rpcResp)
+	hlog.CtxInfof(ctx, "api call rpc end. rpcResp: %+v", rpcResp)
 	if err != nil {
 		c.String(consts.StatusInternalServerError, err.Error())
 		return
@@ -62,7 +61,6 @@ func UserRegister(ctx context.Context, c *app.RequestContext) {
 		Username: req.Username,
 		Password: req.Password,
 	})
-
 	if err != nil {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
@@ -89,8 +87,18 @@ func User(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
+	user, _ := c.Get(mw.JwtMiddleware.IdentityKey)
+	hlog.CtxInfof(ctx, "user_Id: %+v", user.(*douyin_api.User).ID)
 
-	resp := new(douyin_api.UserResponse)
+	rpcResp, err := rpc.UserInfo(ctx, &douyin_user.UserRequest{
+		UserId: req.UserID,
+	})
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	resp := pack.UserResponseRpc2Api(rpcResp)
 
 	c.JSON(consts.StatusOK, resp)
 }

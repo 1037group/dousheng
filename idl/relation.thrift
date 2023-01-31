@@ -3,7 +3,7 @@ namespace go douyin_relation
 include "user.thrift"
 
 struct RelationActionRequest {
-    1: required string token
+    1: required i64 user_id
     2: required i64 to_user_id
     3: required i32 action_type
 }
@@ -15,7 +15,6 @@ struct RelationActionResponse {
 
 struct RelationFollowListRequest {
     1: required i64 user_id
-    2: required string token
 }
 
 struct RelationFollowListResponse {
@@ -26,7 +25,6 @@ struct RelationFollowListResponse {
 
 struct RelationFriendListRequest {
     1: required i64 user_id
-    2: required string token
 }
 
 struct RelationFriendListResponse {

@@ -9,7 +9,6 @@ struct UserRegisterResponse {
     1: required i32 status_code
     2: optional string status_msg
     3: required i64 user_id
-    4: required string token
 }
 
 struct UserLoginRequest {
@@ -21,12 +20,11 @@ struct UserLoginResponse {
     1: required i32 status_code
     2: optional string status_msg
     3: required i64 user_id
-    4: required string token
 }
 
 struct UserRequest {
-    1: required i64 user_id
-    2: required string token
+    1: required i64 req_user_id
+    2: required i64 user_id
 }
 
 struct UserResponse {

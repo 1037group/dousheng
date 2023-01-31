@@ -3,35 +3,16 @@
 package DouyinApi
 
 import (
+	"github.com/1037group/dousheng/cmd/api/biz/mw"
 	"github.com/cloudwego/hertz/pkg/app"
 )
 
+func Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
 func rootMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _douinMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _userMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _user0Mw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _userloginMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _userregisterMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
@@ -51,12 +32,17 @@ func _commentMw() []app.HandlerFunc {
 	return nil
 }
 
-func _comment_ctionMw() []app.HandlerFunc {
+func _commentlistMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
 
-func _commentlistMw() []app.HandlerFunc {
+func _actionMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _comment_ctionMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
@@ -66,12 +52,17 @@ func _favoriteMw() []app.HandlerFunc {
 	return nil
 }
 
-func _favorite_ctionMw() []app.HandlerFunc {
+func _favoritelistMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
 
-func _favoritelistMw() []app.HandlerFunc {
+func _action0Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _favorite_ctionMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
@@ -81,12 +72,17 @@ func _messageMw() []app.HandlerFunc {
 	return nil
 }
 
-func _message_ctionMw() []app.HandlerFunc {
+func _messagechatMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
 
-func _messagechatMw() []app.HandlerFunc {
+func _action1Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _message_ctionMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
@@ -96,17 +92,27 @@ func _publishMw() []app.HandlerFunc {
 	return nil
 }
 
-func _publish_ctionMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
 func _publishlistMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
 
+func _action2Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _publish_ctionMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
 func _relationMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _action3Mw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
@@ -136,7 +142,66 @@ func _relationfriendlistMw() []app.HandlerFunc {
 	return nil
 }
 
-func _testMw() []app.HandlerFunc {
+func _userMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _loginMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _userloginMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _registerMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _userregisterMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _user0Mw() []app.HandlerFunc {
+	return []app.HandlerFunc{mw.JwtMiddleware.MiddlewareFunc()}
+}
+
+func _listMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _list0Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _feed0Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _chatMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _list1Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _list2Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _list3Mw() []app.HandlerFunc {
 	// your code...
 	return nil
 }

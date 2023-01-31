@@ -3,7 +3,7 @@ namespace go douyin_favorite
 include "feed.thrift"
 
 struct FavoriteActionRequest {
-    1: required string token
+    1: required i64 user_id
     2: required i64 video_id
     3: required i32 action_type
 }
@@ -15,7 +15,6 @@ struct FavoriteActionResponse {
 
 struct FavoriteListRequest {
     1: required i64 user_id
-    2: required string token
 }
 
 struct FavoriteListResponse {
