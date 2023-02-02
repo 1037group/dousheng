@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/1037group/dousheng/dal/db"
 	"github.com/1037group/dousheng/kitex_gen/douyin_comment/commentservice"
 	"github.com/1037group/dousheng/pkg/consts"
 	"github.com/1037group/dousheng/pkg/mw"
@@ -19,6 +20,7 @@ func Init() {
 	// klog init
 	klog.SetLogger(kitexlogrus.NewLogger())
 	klog.SetLevel(klog.LevelInfo)
+	db.Init()
 }
 
 func main() {

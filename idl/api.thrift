@@ -93,9 +93,9 @@ struct User {
 * */
 
 struct PublishActionRequest {
-    1: required string token
-    2: required byte data
-    3: required string title
+    1: required string token (api.form="token")
+    2: required binary data (api.form="data")
+    3: required string title (api.form="title")
 }
 
 struct PublishActionResponse {

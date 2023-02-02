@@ -4,20 +4,25 @@ package douyin_api
 
 import (
 	"context"
+	"fmt"
+	"github.com/1037group/dousheng/cmd/api/biz/logic"
 	douyin_api "github.com/1037group/dousheng/cmd/api/biz/model/douyin_api"
 	"github.com/1037group/dousheng/cmd/api/biz/mw"
 	"github.com/1037group/dousheng/cmd/api/biz/rpc"
 	"github.com/1037group/dousheng/kitex_gen/douyin_feed"
+	"github.com/1037group/dousheng/kitex_gen/douyin_publish"
 	"github.com/1037group/dousheng/kitex_gen/douyin_user"
 	"github.com/1037group/dousheng/pack"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"os"
 )
 
 // Feed .
 // @router /douyin/feed [GET]
 func Feed(ctx context.Context, c *app.RequestContext) {
+	hlog.CtxInfof(ctx, "[Feed] api is called.")
 	var err error
 	var req douyin_api.FeedRequest
 	err = c.BindAndValidate(&req)
@@ -29,7 +34,7 @@ func Feed(ctx context.Context, c *app.RequestContext) {
 	rpcResp, err := rpc.Feed(ctx, &douyin_feed.FeedRequest{
 		LatestTime: req.LatestTime,
 	})
-	hlog.CtxInfof(ctx, "api call rpc end. rpcResp: %+v", rpcResp)
+	hlog.CtxInfof(ctx, "[Feed] api call rpc end. rpcResp: %+v", rpcResp)
 	if err != nil {
 		c.String(consts.StatusInternalServerError, err.Error())
 		return
@@ -43,12 +48,14 @@ func Feed(ctx context.Context, c *app.RequestContext) {
 // UserLogin .
 // @router /douyin/user/login [POST]
 func UserLogin(ctx context.Context, c *app.RequestContext) {
+	hlog.CtxInfof(ctx, "[UserLogin] api is called.")
 	mw.JwtMiddleware.LoginHandler(ctx, c)
 }
 
 // UserRegister .
 // @router /douyin/user/register [POST]
 func UserRegister(ctx context.Context, c *app.RequestContext) {
+	hlog.CtxInfof(ctx, "[UserRegister] api is called.")
 	var err error
 	var req douyin_api.UserRegisterRequest
 	err = c.BindAndValidate(&req)
@@ -61,6 +68,7 @@ func UserRegister(ctx context.Context, c *app.RequestContext) {
 		Username: req.Username,
 		Password: req.Password,
 	})
+	hlog.CtxInfof(ctx, "[UserRegister] api call rpc end. rpcResp: %+v", rpcResp)
 	if err != nil {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
@@ -80,6 +88,7 @@ func UserRegister(ctx context.Context, c *app.RequestContext) {
 // User .
 // @router /douyin/user [GET]
 func User(ctx context.Context, c *app.RequestContext) {
+	hlog.CtxInfof(ctx, "[User] api is called.")
 	var err error
 	var req douyin_api.UserRequest
 	err = c.BindAndValidate(&req)
@@ -93,6 +102,8 @@ func User(ctx context.Context, c *app.RequestContext) {
 	rpcResp, err := rpc.UserInfo(ctx, &douyin_user.UserRequest{
 		UserId: req.UserID,
 	})
+	hlog.CtxInfof(ctx, "[User] api call rpc end. rpcResp: %+v", rpcResp)
+
 	if err != nil {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
@@ -106,15 +117,94 @@ func User(ctx context.Context, c *app.RequestContext) {
 // PublishAction .
 // @router /douyin/publish/action [POST]
 func PublishAction(ctx context.Context, c *app.RequestContext) {
+	hlog.CtxInfof(ctx, "[PublishAction] api is called.")
 	var err error
-	var req douyin_api.PublishActionRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
+
+	title := c.PostForm("title")
+	if title == "" {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
 
-	resp := new(douyin_api.PublishActionResponse)
+	file, err := c.FormFile("data")
+	if err != nil {
+		hlog.CtxErrorf(ctx, err.Error())
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
+
+	// path
+	path := "./tmp"
+
+	// check
+	if _, err := os.Stat(path); err != nil {
+		hlog.CtxInfof(ctx, "path not exists ", path)
+		err := os.MkdirAll(path, 0711)
+		if err != nil {
+			c.String(consts.StatusInternalServerError, err.Error())
+			hlog.CtxErrorf(ctx, "Error creating directory tmp")
+			return
+		}
+	}
+
+	// Save file local
+	videoPath := fmt.Sprintf("./tmp/%s", file.Filename)
+	err = c.SaveUploadedFile(file, videoPath)
+	if err != nil {
+		hlog.CtxErrorf(ctx, err.Error())
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
+
+	user, _ := c.Get(mw.JwtMiddleware.IdentityKey)
+	userId := user.(*douyin_api.User).ID
+	hlog.CtxInfof(ctx, "userId: %+v", userId)
+
+	// Upload mp4 file
+	videoUrl, videoMd5, err := logic.UploadVideoToCOS(ctx, videoPath, userId)
+	if err != nil {
+		hlog.CtxErrorf(ctx, err.Error())
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
+	hlog.CtxInfof(ctx, "[videoUrl]: %+v", videoUrl)
+
+	// Generate cover
+	snapshotPath := fmt.Sprintf("./tmp/%s.jpeg", videoMd5)
+	err = logic.GetSnapshot(ctx, videoPath, snapshotPath, 1)
+	if err != nil {
+		hlog.CtxErrorf(ctx, err.Error())
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
+
+	// Upload jpeg file
+	imgUrl, err := logic.UploadImgToCOS(ctx, snapshotPath, userId)
+	if err != nil {
+		hlog.CtxErrorf(ctx, err.Error())
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
+	hlog.CtxInfof(ctx, "[imgUrl]: %+v", imgUrl)
+
+	// rpc
+	rpcResp, err := rpc.PublishAction(ctx, &douyin_publish.PublishActionRequest{
+		UserId:        userId,
+		Title:         title,
+		VideoPlayUrl:  videoUrl,
+		VideoCoverUrl: imgUrl,
+	})
+
+	hlog.CtxInfof(ctx, "[PublishAction] api call rpc end. rpcResp: %+v", rpcResp)
+	if err != nil {
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
+
+	resp := douyin_api.PublishActionResponse{
+		StatusCode: rpcResp.StatusCode,
+		StatusMsg:  rpcResp.StatusMsg,
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -122,6 +212,7 @@ func PublishAction(ctx context.Context, c *app.RequestContext) {
 // PublishList .
 // @router /douyin/publish/list [GET]
 func PublishList(ctx context.Context, c *app.RequestContext) {
+	hlog.CtxInfof(ctx, "[PublishList] api is called.")
 	var err error
 	var req douyin_api.PublishListRequest
 	err = c.BindAndValidate(&req)
@@ -130,8 +221,16 @@ func PublishList(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(douyin_api.PublishListResponse)
+	rpcResp, err := rpc.PublishList(ctx, &douyin_publish.PublishListRequest{
+		UserId: req.UserID,
+	})
+	hlog.CtxInfof(ctx, "[PublishList] api call rpc end. rpcResp: %+v", rpcResp)
+	if err != nil {
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
 
+	resp := pack.PublishListResponseRpc2Api(rpcResp)
 	c.JSON(consts.StatusOK, resp)
 }
 

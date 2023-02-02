@@ -21,16 +21,13 @@ func Init() {
 }
 
 func main() {
-	//h := server.Default()
-	//
-	//register(h)
-	//h.Spin()
 
 	Init()
 	tracer, cfg := tracing.NewServerTracer()
 	h := server.New(
 		server.WithHostPorts(":8080"),
 		server.WithHandleMethodNotAllowed(true), // coordinate with NoMethod
+		server.WithMaxRequestBodySize(20<<20),
 		tracer,
 	)
 	// use pprof mw

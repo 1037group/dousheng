@@ -3,8 +3,10 @@
 package DouyinApi
 
 import (
+	"context"
 	"github.com/1037group/dousheng/cmd/api/biz/mw"
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 )
 
 func Mw() []app.HandlerFunc {
@@ -93,8 +95,7 @@ func _publishMw() []app.HandlerFunc {
 }
 
 func _publishlistMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{mw.JwtMiddleware.MiddlewareFunc()}
 }
 
 func _action2Mw() []app.HandlerFunc {
@@ -103,8 +104,8 @@ func _action2Mw() []app.HandlerFunc {
 }
 
 func _publish_ctionMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	hlog.CtxInfof(context.Background(), "[_publish_ctionMw]")
+	return []app.HandlerFunc{mw.JwtMiddleware.MiddlewareFunc()}
 }
 
 func _relationMw() []app.HandlerFunc {

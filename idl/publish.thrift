@@ -4,8 +4,9 @@ include "feed.thrift"
 
 struct PublishActionRequest {
     1: required i64 user_id
-    2: required byte data
-    3: required string title
+    2: required string title
+    3: required string video_play_url
+    4: required string video_cover_url
 }
 
 struct PublishActionResponse {

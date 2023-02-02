@@ -2922,9 +2922,9 @@ func (p *User) String() string {
 *
 * */
 type PublishActionRequest struct {
-	Token string `thrift:"token,1,required" form:"token,required" json:"token,required" query:"token,required"`
-	Data  int8   `thrift:"data,2,required" form:"data,required" json:"data,required" query:"data,required"`
-	Title string `thrift:"title,3,required" form:"title,required" json:"title,required" query:"title,required"`
+	Token string `thrift:"token,1,required" form:"token,required" json:"token,required"`
+	Data  []byte `thrift:"data,2,required" form:"data,required" json:"data,required"`
+	Title string `thrift:"title,3,required" form:"title,required" json:"title,required"`
 }
 
 func NewPublishActionRequest() *PublishActionRequest {
@@ -2935,7 +2935,7 @@ func (p *PublishActionRequest) GetToken() (v string) {
 	return p.Token
 }
 
-func (p *PublishActionRequest) GetData() (v int8) {
+func (p *PublishActionRequest) GetData() (v []byte) {
 	return p.Data
 }
 
@@ -2983,7 +2983,7 @@ func (p *PublishActionRequest) Read(iprot thrift.TProtocol) (err error) {
 				}
 			}
 		case 2:
-			if fieldTypeId == thrift.BYTE {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -3060,10 +3060,10 @@ func (p *PublishActionRequest) ReadField1(iprot thrift.TProtocol) error {
 }
 
 func (p *PublishActionRequest) ReadField2(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadByte(); err != nil {
+	if v, err := iprot.ReadBinary(); err != nil {
 		return err
 	} else {
-		p.Data = v
+		p.Data = []byte(v)
 	}
 	return nil
 }
@@ -3132,10 +3132,10 @@ WriteFieldEndError:
 }
 
 func (p *PublishActionRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("data", thrift.BYTE, 2); err != nil {
+	if err = oprot.WriteFieldBegin("data", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteByte(p.Data); err != nil {
+	if err := oprot.WriteBinary([]byte(p.Data)); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {

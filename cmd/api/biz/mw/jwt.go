@@ -21,9 +21,10 @@ import (
 var JwtMiddleware *jwt.HertzJWTMiddleware
 
 func InitJWT() {
-	JwtMiddleware, _ = jwt.New(&jwt.HertzJWTMiddleware{
+	var err error
+	JwtMiddleware, err = jwt.New(&jwt.HertzJWTMiddleware{
 		Key:           []byte(consts.SecretKey),
-		TokenLookup:   "query: token",
+		TokenLookup:   "query: token, form: token",
 		TokenHeadName: "Bearer",
 		TimeFunc:      time.Now,
 		Timeout:       time.Hour,
@@ -72,12 +73,14 @@ func InitJWT() {
 			})
 		},
 		Unauthorized: func(ctx context.Context, c *app.RequestContext, code int, message string) {
+			hlog.CtxErrorf(ctx, "[Unauthorized] jwt")
 			c.JSON(http.StatusOK, utils.H{
 				"code":    errno.AuthorizationFailedErr.ErrCode,
 				"message": message,
 			})
 		},
 		HTTPStatusMessageFunc: func(e error, ctx context.Context, c *app.RequestContext) string {
+			hlog.CtxErrorf(ctx, "[HTTPStatusMessageFunc] jwt err: %+v", e.Error())
 			switch t := e.(type) {
 			case errno.ErrNo:
 				return t.ErrMsg
@@ -86,4 +89,8 @@ func InitJWT() {
 			}
 		},
 	})
+
+	if err != nil {
+		panic(err)
+	}
 }

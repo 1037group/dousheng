@@ -16,13 +16,13 @@ type FeedServiceImpl struct{}
 // Feed implements the FeedServiceImpl interface.
 func (s *FeedServiceImpl) Feed(ctx context.Context, req *douyin_feed.FeedRequest) (resp *douyin_feed.FeedResponse, err error) {
 
-	klog.CtxInfof(ctx, "FeedRequest %+v", req)
+	klog.CtxInfof(ctx, "[FeedRequest] %+v", req)
 
 	curTime := time.Now().UnixMilli()
 	if req.LatestTime != nil {
 		curTime = *req.LatestTime
 	}
-	res, err := db.MGetVideos(ctx, &curTime)
+	res, err := db.MGetVideosByLastTime(ctx, &curTime)
 	if err != nil {
 		klog.CtxErrorf(ctx, err.Error())
 		return nil, err
