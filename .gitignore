@@ -22,3 +22,7 @@
 */bin
 */log%
 
+/pkg/configs/redis/data
+/pkg/configs/redis/logs
+
+

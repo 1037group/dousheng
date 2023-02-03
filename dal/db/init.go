@@ -1,6 +1,8 @@
 package db
 
 import (
+	"context"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"time"
 
 	"github.com/1037group/dousheng/pkg/consts"
@@ -37,4 +39,5 @@ func Init() {
 	if err := DB.Use(tracing.NewPlugin()); err != nil {
 		panic(err)
 	}
+	hlog.CtxInfof(context.Background(), "MySQL initialized successfully.")
 }

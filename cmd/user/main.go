@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/1037group/dousheng/dal/db"
+	"github.com/1037group/dousheng/dal"
 	"github.com/1037group/dousheng/kitex_gen/douyin_user/userservice"
 	"github.com/1037group/dousheng/pkg/consts"
 	"github.com/1037group/dousheng/pkg/mw"
@@ -22,7 +22,7 @@ func Init() {
 	// klog init
 	klog.SetLogger(kitexlogrus.NewLogger())
 	klog.SetLevel(klog.LevelInfo)
-	db.Init()
+	dal.Init()
 }
 
 func main() {
@@ -35,7 +35,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	Init()
 	provider.NewOpenTelemetryProvider(
 		provider.WithServiceName(consts.UserServiceName),
 		provider.WithExportEndpoint(consts.ExportEndpoint),
