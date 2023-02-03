@@ -33,6 +33,7 @@ var (
 	UserAlreadyExistErr    = NewErrNo(int32(10003), "User already exists")
 	UserNotExistErr        = NewErrNo(int32(10004), "User not exists")
 	AuthorizationFailedErr = NewErrNo(int32(10005), "Authorization failed")
+	RedisLockFailed        = NewErrNo(int32(10006), "redis lock failed")
 )
 
 // ConvertErr convert error to Errno

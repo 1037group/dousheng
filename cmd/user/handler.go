@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/1037group/dousheng/cmd/user/logic"
 	"github.com/1037group/dousheng/dal/db"
+	"github.com/1037group/dousheng/dal/redis"
 	douyin_user "github.com/1037group/dousheng/kitex_gen/douyin_user"
 	"github.com/1037group/dousheng/pkg/configs/sql"
 	"github.com/1037group/dousheng/pkg/errno"
@@ -22,7 +24,7 @@ func (s *UserServiceImpl) UserLogin(ctx context.Context, req *douyin_user.UserLo
 		return nil, errno.AuthorizationFailedErr
 	}
 
-	users, err := db.GetUserByUserName(ctx, req.Username)
+	users, err := db.GetUserByUserName(ctx, db.DB, req.Username)
 	if err != nil {
 		klog.CtxErrorf(ctx, err.Error())
 		return nil, errno.AuthorizationFailedErr
@@ -45,11 +47,25 @@ func (s *UserServiceImpl) UserLogin(ctx context.Context, req *douyin_user.UserLo
 	return &resp, nil
 }
 
+func GetUserRegisterLockKey(userName string) string {
+	return fmt.Sprintf("UserRegisterLock: %+v", userName)
+}
+
 // UserRegister implements the UserServiceImpl interface.
 func (s *UserServiceImpl) UserRegister(ctx context.Context, req *douyin_user.UserRegisterRequest) (*douyin_user.UserRegisterResponse, error) {
 	klog.CtxInfof(ctx, "[UserRegister] %+v", req)
 
-	users, err := db.GetUserByUserName(ctx, req.Username)
+	// Redis 加锁
+	key := GetUserRegisterLockKey(req.Username)
+	lock := redis.LockAcquire(ctx, key)
+	if lock == nil {
+		klog.CtxErrorf(ctx, errno.RedisLockFailed.ErrMsg)
+		return nil, errno.RedisLockFailed
+	}
+	defer lock.Release(ctx)
+
+	// check if userName already exist.
+	users, err := db.GetUserByUserName(ctx, db.DB, req.Username)
 
 	if err != nil {
 		klog.CtxErrorf(ctx, err.Error())
@@ -60,8 +76,6 @@ func (s *UserServiceImpl) UserRegister(ctx context.Context, req *douyin_user.Use
 		klog.CtxErrorf(ctx, errno.UserAlreadyExistErr.ErrMsg)
 		return nil, errno.UserAlreadyExistErr
 	}
-
-	// TODO redis lock username
 
 	pwdHash, err := logic.HashPassword(req.Password)
 	if err != nil {
@@ -78,29 +92,17 @@ func (s *UserServiceImpl) UserRegister(ctx context.Context, req *douyin_user.Use
 		Utime:             t,
 		PasswordHash:      pwdHash,
 	}
-	err = db.CreateUser(ctx, &user)
+	err = db.CreateUser(ctx, db.DB, &user)
 	if err != nil {
 		klog.CtxErrorf(ctx, err.Error())
 		return nil, errno.ParamErr
 	}
+	klog.CtxInfof(ctx, "UserId: %+v registered successfully.", user.UserId)
 
-	users, err = db.GetUserByUserName(ctx, req.Username)
-
-	if err != nil {
-		klog.CtxErrorf(ctx, err.Error())
-		return nil, errno.ParamErr
-	}
-
-	if len(users) == 0 {
-		klog.CtxErrorf(ctx, errno.ParamErr.ErrMsg)
-		return nil, errno.ParamErr
-	}
-
-	klog.CtxInfof(ctx, "userId: %+v", users[0].UserId)
 	resp := douyin_user.UserRegisterResponse{
 		StatusCode: 0,
 		StatusMsg:  nil,
-		UserId:     users[0].UserId,
+		UserId:     user.UserId,
 	}
 	return &resp, nil
 }
@@ -110,7 +112,7 @@ func (s *UserServiceImpl) User(ctx context.Context, req *douyin_user.UserRequest
 	klog.CtxInfof(ctx, "[User] %+v", req)
 
 	userIDs := []int64{req.UserId}
-	users, err := db.MGetUserByID(ctx, userIDs)
+	users, err := db.MGetUserByID(ctx, db.DB, userIDs)
 	if err != nil {
 		klog.CtxErrorf(ctx, err.Error())
 		return nil, err
@@ -120,13 +122,18 @@ func (s *UserServiceImpl) User(ctx context.Context, req *douyin_user.UserRequest
 		return nil, errno.UserNotExistErr
 	}
 
-	// TODO IsFollow
+	isFollow, err := db.CheckFollow(ctx, db.DB, req.ReqUserId, req.UserId)
+	if err != nil {
+		klog.CtxErrorf(ctx, err.Error())
+		return nil, err
+	}
+
 	user := douyin_user.User{
 		Id:            users[0].UserId,
 		Name:          users[0].UserName,
 		FollowCount:   &users[0].UserFollowCount,
 		FollowerCount: &users[0].UserFollowerCount,
-		IsFollow:      false,
+		IsFollow:      isFollow,
 	}
 	resp = &douyin_user.UserResponse{
 		StatusCode: 0,

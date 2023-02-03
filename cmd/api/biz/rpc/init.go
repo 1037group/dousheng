@@ -4,4 +4,5 @@ func Init() {
 	initFeed()
 	initUser()
 	initPublish()
+	initRelation()
 }

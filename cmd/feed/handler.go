@@ -22,7 +22,7 @@ func (s *FeedServiceImpl) Feed(ctx context.Context, req *douyin_feed.FeedRequest
 	if req.LatestTime != nil {
 		curTime = *req.LatestTime
 	}
-	res, err := db.MGetVideosByLastTime(ctx, &curTime)
+	res, err := db.MGetVideosByLastTime(ctx, db.DB, &curTime)
 	if err != nil {
 		klog.CtxErrorf(ctx, err.Error())
 		return nil, err
@@ -35,7 +35,7 @@ func (s *FeedServiceImpl) Feed(ctx context.Context, req *douyin_feed.FeedRequest
 		userIDs = append(userIDs, m.UserId)
 	}
 
-	users, err := db.MGetUserByID(ctx, userIDs)
+	users, err := db.MGetUserByID(ctx, db.DB, userIDs)
 	if err != nil {
 		klog.CtxErrorf(ctx, err.Error())
 		return nil, err
