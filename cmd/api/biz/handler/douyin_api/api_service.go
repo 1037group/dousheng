@@ -11,12 +11,14 @@ import (
 	"github.com/1037group/dousheng/cmd/api/biz/rpc"
 	"github.com/1037group/dousheng/kitex_gen/douyin_feed"
 	"github.com/1037group/dousheng/kitex_gen/douyin_publish"
+	"github.com/1037group/dousheng/kitex_gen/douyin_relation"
 	"github.com/1037group/dousheng/kitex_gen/douyin_user"
 	"github.com/1037group/dousheng/pack"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	"os"
+	"strconv"
 )
 
 // Feed .
@@ -301,15 +303,51 @@ func CommentList(ctx context.Context, c *app.RequestContext) {
 // RelationAction .
 // @router douyin/relation/action [POST]
 func RelationAction(ctx context.Context, c *app.RequestContext) {
+	hlog.CtxInfof(ctx, "[RelationAction] api is called.")
+
 	var err error
 	var req douyin_api.RelationActionRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
+		hlog.CtxErrorf(ctx, err.Error())
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
 
-	resp := new(douyin_api.RelationActionResponse)
+	// parse userId from token
+	user, _ := c.Get(mw.JwtMiddleware.IdentityKey)
+	userId := user.(*douyin_api.User).ID
+	hlog.CtxInfof(ctx, "userId: %+v", userId)
+
+	toUserId, err := strconv.ParseInt(req.ToUserID, 10, 64)
+	if err != nil {
+		hlog.CtxErrorf(ctx, err.Error())
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	actionType, err := strconv.Atoi(req.ActionType)
+	if err != nil {
+		hlog.CtxErrorf(ctx, err.Error())
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	rpcResp, err := rpc.RelationAction(ctx, &douyin_relation.RelationActionRequest{
+		UserId:     userId,
+		ToUserId:   toUserId,
+		ActionType: int32(actionType),
+	})
+	if err != nil {
+		hlog.CtxErrorf(ctx, err.Error())
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
+
+	resp := &douyin_api.RelationActionResponse{
+		StatusCode: rpcResp.StatusCode,
+		StatusMsg:  rpcResp.StatusMsg,
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }

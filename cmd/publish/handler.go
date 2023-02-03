@@ -30,7 +30,7 @@ func (s *PublishServiceImpl) PublishAction(ctx context.Context, req *douyin_publ
 		Utime:              t,
 	}
 
-	err = db.CreateVideo(ctx, &video)
+	err = db.CreateVideo(ctx, db.DB, &video)
 	if err != nil {
 		klog.CtxErrorf(ctx, err.Error())
 		return nil, errno.ParamErr
@@ -47,7 +47,7 @@ func (s *PublishServiceImpl) PublishAction(ctx context.Context, req *douyin_publ
 func (s *PublishServiceImpl) PublishList(ctx context.Context, req *douyin_publish.PublishListRequest) (resp *douyin_publish.PublishListResponse, err error) {
 	klog.CtxInfof(ctx, "[PublishListRequest] %+v", req)
 
-	res, err := db.MGetVideosByUserId(ctx, &req.UserId)
+	res, err := db.MGetVideosByUserId(ctx, db.DB, &req.UserId)
 	if err != nil {
 		klog.CtxErrorf(ctx, err.Error())
 		return nil, err
@@ -60,7 +60,7 @@ func (s *PublishServiceImpl) PublishList(ctx context.Context, req *douyin_publis
 		userIDs = append(userIDs, m.UserId)
 	}
 
-	users, err := db.MGetUserByID(ctx, userIDs)
+	users, err := db.MGetUserByID(ctx, db.DB, userIDs)
 	if err != nil {
 		klog.CtxErrorf(ctx, err.Error())
 		return nil, err

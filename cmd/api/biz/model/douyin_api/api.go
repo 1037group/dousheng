@@ -6169,9 +6169,9 @@ func (p *CommentListResponse) String() string {
 *
 * */
 type RelationActionRequest struct {
-	Token      string `thrift:"token,1,required" form:"token,required" json:"token,required" query:"token,required"`
-	ToUserID   int64  `thrift:"to_user_id,2,required" form:"to_user_id,required" json:"to_user_id,required" query:"to_user_id,required"`
-	ActionType int32  `thrift:"action_type,3,required" form:"action_type,required" json:"action_type,required" query:"action_type,required"`
+	Token      string `thrift:"token,1,required" json:"token,required" query:"token,required"`
+	ToUserID   string `thrift:"to_user_id,2,required" json:"to_user_id,required" query:"to_user_id,required"`
+	ActionType string `thrift:"action_type,3,required" json:"action_type,required" query:"action_type,required"`
 }
 
 func NewRelationActionRequest() *RelationActionRequest {
@@ -6182,11 +6182,11 @@ func (p *RelationActionRequest) GetToken() (v string) {
 	return p.Token
 }
 
-func (p *RelationActionRequest) GetToUserID() (v int64) {
+func (p *RelationActionRequest) GetToUserID() (v string) {
 	return p.ToUserID
 }
 
-func (p *RelationActionRequest) GetActionType() (v int32) {
+func (p *RelationActionRequest) GetActionType() (v string) {
 	return p.ActionType
 }
 
@@ -6230,7 +6230,7 @@ func (p *RelationActionRequest) Read(iprot thrift.TProtocol) (err error) {
 				}
 			}
 		case 2:
-			if fieldTypeId == thrift.I64 {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -6241,7 +6241,7 @@ func (p *RelationActionRequest) Read(iprot thrift.TProtocol) (err error) {
 				}
 			}
 		case 3:
-			if fieldTypeId == thrift.I32 {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField3(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -6307,7 +6307,7 @@ func (p *RelationActionRequest) ReadField1(iprot thrift.TProtocol) error {
 }
 
 func (p *RelationActionRequest) ReadField2(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadI64(); err != nil {
+	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
 		p.ToUserID = v
@@ -6316,7 +6316,7 @@ func (p *RelationActionRequest) ReadField2(iprot thrift.TProtocol) error {
 }
 
 func (p *RelationActionRequest) ReadField3(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadI32(); err != nil {
+	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
 		p.ActionType = v
@@ -6379,10 +6379,10 @@ WriteFieldEndError:
 }
 
 func (p *RelationActionRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("to_user_id", thrift.I64, 2); err != nil {
+	if err = oprot.WriteFieldBegin("to_user_id", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.ToUserID); err != nil {
+	if err := oprot.WriteString(p.ToUserID); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -6396,10 +6396,10 @@ WriteFieldEndError:
 }
 
 func (p *RelationActionRequest) writeField3(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("action_type", thrift.I32, 3); err != nil {
+	if err = oprot.WriteFieldBegin("action_type", thrift.STRING, 3); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI32(p.ActionType); err != nil {
+	if err := oprot.WriteString(p.ActionType); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {

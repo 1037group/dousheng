@@ -3,7 +3,7 @@ package sql
 import "time"
 
 type User struct {
-	UserId            int64     `gorm:"column:user_id" db:"user_id" json:"user_id" form:"user_id"`
+	UserId            int64     `gorm:"primaryKey;column:user_id" db:"user_id" json:"user_id" form:"user_id"`
 	UserName          string    `gorm:"column:user_name" db:"user_name" json:"user_name" form:"user_name"`
 	UserFollowCount   int64     `gorm:"column:user_follow_count" db:"user_follow_count" json:"user_follow_count" form:"user_follow_count"`
 	UserFollowerCount int64     `gorm:"column:user_follower_count" db:"user_follower_count" json:"user_follower_count" form:"user_follower_count"`

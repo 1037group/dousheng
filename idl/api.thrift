@@ -187,9 +187,9 @@ struct CommentListResponse {
 * */
 
 struct RelationActionRequest {
-    1: required string token
-    2: required i64 to_user_id
-    3: required i32 action_type
+    1: required string token (api.query="token")
+    2: required string to_user_id (api.query="to_user_id")
+    3: required string action_type (api.query="action_type")
 }
 
 struct RelationActionResponse {

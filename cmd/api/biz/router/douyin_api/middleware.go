@@ -116,8 +116,7 @@ func _action3Mw() []app.HandlerFunc {
 }
 
 func _relation_ctionMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{mw.JwtMiddleware.MiddlewareFunc()}
 }
 
 func _followMw() []app.HandlerFunc {

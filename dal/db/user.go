@@ -4,10 +4,11 @@ import (
 	"context"
 	"github.com/1037group/dousheng/pkg/configs/sql"
 	"github.com/cloudwego/kitex/pkg/klog"
+	"gorm.io/gorm"
 )
 
 // MGetUserById multiple get list of user info
-func MGetUserByID(ctx context.Context, userIDs []int64) ([]*sql.User, error) {
+func MGetUserByID(ctx context.Context, tx *gorm.DB, userIDs []int64) ([]*sql.User, error) {
 	klog.CtxInfof(ctx, "[MGetUserByID] userIDs: %+v\n", userIDs)
 
 	res := make([]*sql.User, 0)
@@ -16,7 +17,7 @@ func MGetUserByID(ctx context.Context, userIDs []int64) ([]*sql.User, error) {
 	}
 
 	query := sql.SQL_USER_USER_ID + " in ?"
-	if err := DB.WithContext(ctx).Where(query, userIDs).Find(&res).Error; err != nil {
+	if err := tx.WithContext(ctx).Where(query, userIDs).Find(&res).Error; err != nil {
 		klog.CtxInfof(ctx, "[MGetUserByID] res: %+v\n", res)
 		return res, err
 	}
@@ -24,13 +25,13 @@ func MGetUserByID(ctx context.Context, userIDs []int64) ([]*sql.User, error) {
 }
 
 // QueryUser get user by userName
-func GetUserByUserName(ctx context.Context, userName string) ([]*sql.User, error) {
+func GetUserByUserName(ctx context.Context, tx *gorm.DB, userName string) ([]*sql.User, error) {
 	klog.CtxInfof(ctx, "[GetUserByUserName] userName: %+v\n", userName)
 
 	res := make([]*sql.User, 0)
 
 	query := sql.SQL_USER_USER_NAME + " = ?"
-	if err := DB.WithContext(ctx).Where(query, userName).Find(&res).Error; err != nil {
+	if err := tx.WithContext(ctx).Where(query, userName).Find(&res).Error; err != nil {
 		klog.CtxErrorf(ctx, err.Error())
 		return nil, err
 	}
@@ -38,7 +39,36 @@ func GetUserByUserName(ctx context.Context, userName string) ([]*sql.User, error
 }
 
 // CreateUser create user info
-func CreateUser(ctx context.Context, user *sql.User) error {
-	klog.CtxInfof(ctx, "[CreateUser] userName: %+v\n", user)
-	return DB.WithContext(ctx).Create(user).Error
+func CreateUser(ctx context.Context, tx *gorm.DB, user *sql.User) error {
+	klog.CtxInfof(ctx, "[CreateUser] user: %+v\n", user)
+
+	return tx.WithContext(ctx).Create(user).Error
+}
+
+func AddFollowCount(ctx context.Context, tx *gorm.DB, userId int64) error {
+	klog.CtxInfof(ctx, "[AddFollowCount] userId: %+v\n", userId)
+
+	user := &sql.User{UserId: userId}
+	return tx.Model(&user).UpdateColumn(sql.SQL_USER_USER_FOLLOW_COUNT, gorm.Expr(sql.SQL_USER_USER_FOLLOW_COUNT+" + ?", 1)).Error
+}
+
+func AddFollowerCount(ctx context.Context, tx *gorm.DB, userId int64) error {
+	klog.CtxInfof(ctx, "[AddFollowerCount] userId: %+v\n", userId)
+
+	user := &sql.User{UserId: userId}
+	return tx.Model(&user).UpdateColumn(sql.SQL_USER_USER_FOLLOWER_COUNT, gorm.Expr(sql.SQL_USER_USER_FOLLOWER_COUNT+" + ?", 1)).Error
+}
+
+func MinusFollowCount(ctx context.Context, tx *gorm.DB, userId int64) error {
+	klog.CtxInfof(ctx, "[MinusFollowCount] userId: %+v\n", userId)
+
+	user := &sql.User{UserId: userId}
+	return tx.Model(&user).UpdateColumn(sql.SQL_USER_USER_FOLLOW_COUNT, gorm.Expr(sql.SQL_USER_USER_FOLLOW_COUNT+" - ?", 1)).Error
+}
+
+func MinusFollowerCount(ctx context.Context, tx *gorm.DB, userId int64) error {
+	klog.CtxInfof(ctx, "[MinusFollowerCount] userId: %+v\n", userId)
+
+	user := &sql.User{UserId: userId}
+	return tx.Model(&user).UpdateColumn(sql.SQL_USER_USER_FOLLOWER_COUNT, gorm.Expr(sql.SQL_USER_USER_FOLLOWER_COUNT+" - ?", 1)).Error
 }

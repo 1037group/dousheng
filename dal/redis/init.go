@@ -4,19 +4,23 @@ import (
 	"context"
 	"fmt"
 	"github.com/1037group/dousheng/pkg/consts"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"github.com/go-redis/redis"
+	"github.com/bsm/redislock"
+	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/redis/go-redis/v9"
 )
 
 var rdb *redis.Client
+var locker *redislock.Client
 
 func Init() {
 
 	rdb = redis.NewClient(&redis.Options{Addr: consts.RedisIp + ":" + consts.RedisPort, Password: ""})
-	_, err := rdb.Ping().Result()
+	_, err := rdb.Ping(context.Background()).Result()
 	if err != nil {
 		fmt.Println("redis connect error.")
 		panic(err)
 	}
-	hlog.CtxInfof(context.Background(), "Redis initialized successfully.")
+	locker = redislock.New(rdb)
+
+	klog.CtxInfof(context.Background(), "Redis initialized successfully.")
 }

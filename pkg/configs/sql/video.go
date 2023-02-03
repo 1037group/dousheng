@@ -3,7 +3,7 @@ package sql
 import "time"
 
 type Video struct {
-	VideoId            int64     `gorm:"column:video_id" db:"video_id" json:"video_id" form:"video_id"`
+	VideoId            int64     `gorm:"primaryKey;column:video_id" db:"video_id" json:"video_id" form:"video_id"`
 	UserId             int64     `gorm:"column:user_id" db:"user_id" json:"user_id" form:"user_id"`
 	VideoPlayUrl       string    `gorm:"column:video_play_url" db:"video_play_url" json:"video_play_url" form:"video_play_url"`
 	VideoCoverUrl      string    `gorm:"column:video_cover_url" db:"video_cover_url" json:"video_cover_url" form:"video_cover_url"`
