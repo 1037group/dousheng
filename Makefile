@@ -18,15 +18,16 @@ update:
 	kitex --thrift-plugin validator -module github.com/1037group/dousheng idl/user.thrift # execute in the project root directory
 
 	@list='$(SUBDIRS)'; for subdir in $$list; do \
-    		echo "make in $$subdir";\
+    		echo "make in $$subdir\n";\
     		cd $$subdir && $(MAKE) && cd ../..;\
     	done
 
-	cd ./cmd/api &&	make update_api
+	echo
+	cd ./cmd/api && make update_api
 
 go_build:
 	@list='$(SUBDIRS)'; for subdir in $$list; do \
-        		echo "go build in $$subdir";\
+        		echo "go build in $$subdir\n";\
         		cd $$subdir && go build && cd ../..;\
 		done
 	cd ./cmd/api && go build
