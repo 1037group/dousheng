@@ -3,6 +3,7 @@ package pack
 import (
 	"github.com/1037group/dousheng/cmd/api/biz/model/douyin_api"
 	"github.com/1037group/dousheng/kitex_gen/douyin_comment"
+	"github.com/1037group/dousheng/kitex_gen/douyin_favorite"
 	"github.com/1037group/dousheng/kitex_gen/douyin_feed"
 	"github.com/1037group/dousheng/kitex_gen/douyin_publish"
 )
@@ -146,5 +147,43 @@ func CommentActionResponseRpc2Api(m *douyin_comment.CommentActionResponse) *douy
 		StatusCode: m.StatusCode,
 		StatusMsg:  m.StatusMsg,
 		Comment:    &comment,
+	}
+}
+func FavoriteListResponseRpc2Api(m *douyin_favorite.FavoriteListResponse) *douyin_api.FavoriteListResponse {
+	if m == nil {
+		return nil
+	}
+	//rpc调用看看有没有需要改的
+	var videoList []*douyin_api.Video
+
+	for _, video := range m.VideoList {
+		var user douyin_api.User
+		if video.Author != nil {
+			user = douyin_api.User{
+				ID:            video.Author.Id,
+				Name:          video.Author.Name,
+				FollowCount:   video.Author.FollowCount,
+				FollowerCount: video.Author.FollowerCount,
+				IsFollow:      video.Author.IsFollow,
+			}
+		}
+
+		one := douyin_api.Video{
+			ID:            video.Id,
+			Author:        &user,
+			PlayURL:       video.PlayUrl,
+			CoverURL:      video.CoverUrl,
+			FavoriteCount: video.FavoriteCount,
+			CommentCount:  video.CommentCount,
+			IsFavorite:    video.IsFavorite,
+			Title:         video.Title,
+		}
+		videoList = append(videoList, &one)
+	}
+
+	return &douyin_api.FavoriteListResponse{
+		StatusCode: m.StatusCode,
+		StatusMsg:  m.StatusMsg,
+		VideoList:  videoList,
 	}
 }
