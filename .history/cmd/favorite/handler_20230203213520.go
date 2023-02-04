@@ -23,7 +23,7 @@ func (s *FavoriteServiceImpl) FavoriteAction(ctx context.Context, req *douyin_fa
 	favorite := sql.Favorite{
 		UserId:     req.UserId,
 		VideoId:    req.VideoId,
-		IsFavorite: req.ActionType - 1, //0代表点赞，1代表取消点赞
+		IsFavorite: req.ActionType,
 		DelState:   0,
 		Utime:      t,
 	}
