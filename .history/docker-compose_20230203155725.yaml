@@ -13,21 +13,6 @@ services:
       - MYSQL_PASSWORD=gorm
       - MYSQL_RANDOM_ROOT_PASSWORD="yes"
 
-  # Redis
-  redis:
-    image: redis:latest
-    container_name: docker_redis
-    privileged: true
-    volumes:
-      - ./pkg/configs/redis/data:/data
-      - ./pkg/configs/redis/conf/redis.conf:/usr/local/etc/redis/redis.conf
-      - ./pkg/configs/redis/logs:/logs
-    command: [ "redis-server","/usr/local/etc/redis/redis.conf" ]
-    ports:
-      - 6379:6379
-    environment:
-      - TZ="Asia/Shanghai"
-
   # ETCD TODO
   Etcd:
     image: 'bitnami/etcd:latest'

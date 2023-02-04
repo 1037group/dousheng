@@ -4,10 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/1037group/dousheng/dal/db"
 	douyin_favorite "github.com/1037group/dousheng/kitex_gen/douyin_favorite"
 	"github.com/1037group/dousheng/pkg/configs/sql"
-	"github.com/1037group/dousheng/pkg/errno"
 	"github.com/cloudwego/kitex/pkg/klog"
 )
 
@@ -23,22 +21,16 @@ func (s *FavoriteServiceImpl) FavoriteAction(ctx context.Context, req *douyin_fa
 	favorite := sql.Favorite{
 		UserId:     req.UserId,
 		VideoId:    req.VideoId,
-		IsFavorite: req.ActionType - 1, //0代表点赞，1代表取消点赞
+		IsFavorite: req.ActionType,
 		DelState:   0,
 		Utime:      t,
 	}
-
-	err = db.CreateFavorite(ctx, &favorite)
-	if err != nil {
-		klog.CtxErrorf(ctx, err.Error())
-		return nil, errno.ParamErr
-	}
-
 	msg := "Favorite success"
 	return &douyin_favorite.FavoriteActionResponse{
 		StatusCode: 0,
 		StatusMsg:  &msg,
 	}, nil
+	return
 }
 
 // FavoriteList implements the FavoriteServiceImpl interface.
