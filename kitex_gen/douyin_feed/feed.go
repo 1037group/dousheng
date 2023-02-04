@@ -12,7 +12,7 @@ import (
 
 type FeedRequest struct {
 	LatestTime *int64 `thrift:"latest_time,1,optional" frugal:"1,optional,i64" json:"latest_time,omitempty"`
-	UserId     *int64 `thrift:"user_id,2,optional" frugal:"2,optional,i64" json:"user_id,omitempty"`
+	ReqUserId  *int64 `thrift:"req_user_id,2,optional" frugal:"2,optional,i64" json:"req_user_id,omitempty"`
 }
 
 func NewFeedRequest() *FeedRequest {
@@ -32,32 +32,32 @@ func (p *FeedRequest) GetLatestTime() (v int64) {
 	return *p.LatestTime
 }
 
-var FeedRequest_UserId_DEFAULT int64
+var FeedRequest_ReqUserId_DEFAULT int64
 
-func (p *FeedRequest) GetUserId() (v int64) {
-	if !p.IsSetUserId() {
-		return FeedRequest_UserId_DEFAULT
+func (p *FeedRequest) GetReqUserId() (v int64) {
+	if !p.IsSetReqUserId() {
+		return FeedRequest_ReqUserId_DEFAULT
 	}
-	return *p.UserId
+	return *p.ReqUserId
 }
 func (p *FeedRequest) SetLatestTime(val *int64) {
 	p.LatestTime = val
 }
-func (p *FeedRequest) SetUserId(val *int64) {
-	p.UserId = val
+func (p *FeedRequest) SetReqUserId(val *int64) {
+	p.ReqUserId = val
 }
 
 var fieldIDToName_FeedRequest = map[int16]string{
 	1: "latest_time",
-	2: "user_id",
+	2: "req_user_id",
 }
 
 func (p *FeedRequest) IsSetLatestTime() bool {
 	return p.LatestTime != nil
 }
 
-func (p *FeedRequest) IsSetUserId() bool {
-	return p.UserId != nil
+func (p *FeedRequest) IsSetReqUserId() bool {
+	return p.ReqUserId != nil
 }
 
 func (p *FeedRequest) Read(iprot thrift.TProtocol) (err error) {
@@ -142,7 +142,7 @@ func (p *FeedRequest) ReadField2(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
-		p.UserId = &v
+		p.ReqUserId = &v
 	}
 	return nil
 }
@@ -200,11 +200,11 @@ WriteFieldEndError:
 }
 
 func (p *FeedRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if p.IsSetUserId() {
-		if err = oprot.WriteFieldBegin("user_id", thrift.I64, 2); err != nil {
+	if p.IsSetReqUserId() {
+		if err = oprot.WriteFieldBegin("req_user_id", thrift.I64, 2); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteI64(*p.UserId); err != nil {
+		if err := oprot.WriteI64(*p.ReqUserId); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -234,7 +234,7 @@ func (p *FeedRequest) DeepEqual(ano *FeedRequest) bool {
 	if !p.Field1DeepEqual(ano.LatestTime) {
 		return false
 	}
-	if !p.Field2DeepEqual(ano.UserId) {
+	if !p.Field2DeepEqual(ano.ReqUserId) {
 		return false
 	}
 	return true
@@ -254,12 +254,12 @@ func (p *FeedRequest) Field1DeepEqual(src *int64) bool {
 }
 func (p *FeedRequest) Field2DeepEqual(src *int64) bool {
 
-	if p.UserId == src {
+	if p.ReqUserId == src {
 		return true
-	} else if p.UserId == nil || src == nil {
+	} else if p.ReqUserId == nil || src == nil {
 		return false
 	}
-	if *p.UserId != *src {
+	if *p.ReqUserId != *src {
 		return false
 	}
 	return true

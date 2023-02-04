@@ -33,6 +33,12 @@ func (p *RelationFollowListRequest) IsValid() error {
 func (p *RelationFollowListResponse) IsValid() error {
 	return nil
 }
+func (p *RelationFollowerListRequest) IsValid() error {
+	return nil
+}
+func (p *RelationFollowerListResponse) IsValid() error {
+	return nil
+}
 func (p *RelationFriendListRequest) IsValid() error {
 	return nil
 }

@@ -17,8 +17,10 @@ func GetRelationActionLockKey(userId, toUserId int64) string {
 }
 
 func RelationAction(ctx context.Context, req *douyin_relation.RelationActionRequest) (err error) {
+	klog.CtxInfof(ctx, "[logic.RelationAction] req: %+v", req)
+
 	// Redis 加锁
-	key := GetRelationActionLockKey(req.UserId, req.ToUserId)
+	key := GetRelationActionLockKey(req.ReqUserId, req.ToUserId)
 	lock := redis.LockAcquire(ctx, key)
 	if lock == nil {
 		klog.CtxErrorf(ctx, errno.RedisLockFailed.ErrMsg)
@@ -29,7 +31,7 @@ func RelationAction(ctx context.Context, req *douyin_relation.RelationActionRequ
 	// 需要事务
 	err = db.DB.Transaction(func(tx *gorm.DB) error {
 		// 在事务中执行一些 db 操作（从这里开始，您应该使用 'tx' 而不是 'db'）
-		err = db.UpdateRelation(ctx, tx, req.UserId, req.ToUserId, req.ActionType)
+		err = db.UpdateRelation(ctx, tx, req.ReqUserId, req.ToUserId, req.ActionType)
 		if err != nil {
 			klog.CtxErrorf(ctx, err.Error())
 			return err
@@ -40,7 +42,7 @@ func RelationAction(ctx context.Context, req *douyin_relation.RelationActionRequ
 				klog.CtxErrorf(ctx, err.Error())
 				return err
 			}
-			err = db.AddFollowCount(ctx, tx, req.UserId)
+			err = db.AddFollowCount(ctx, tx, req.ReqUserId)
 			if err != nil {
 				klog.CtxErrorf(ctx, err.Error())
 				return err
@@ -51,7 +53,7 @@ func RelationAction(ctx context.Context, req *douyin_relation.RelationActionRequ
 				klog.CtxErrorf(ctx, err.Error())
 				return err
 			}
-			err = db.MinusFollowCount(ctx, tx, req.UserId)
+			err = db.MinusFollowCount(ctx, tx, req.ReqUserId)
 			if err != nil {
 				klog.CtxErrorf(ctx, err.Error())
 				return err

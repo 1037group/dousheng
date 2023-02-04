@@ -198,11 +198,22 @@ struct RelationActionResponse {
 }
 
 struct RelationFollowListRequest {
-    1: required i64 user_id
-    2: required string token
+    1: required string user_id (api.query="user_id")
+    2: required string token (api.query="token")
 }
 
 struct RelationFollowListResponse {
+    1: required i32 status_code
+    2: optional string status_msg
+    3: list<User> user_list
+}
+
+struct RelationFollowerListRequest {
+    1: required string user_id (api.query="user_id")
+    2: required string token (api.query="token")
+}
+
+struct RelationFollowerListResponse {
     1: required i32 status_code
     2: optional string status_msg
     3: list<User> user_list
@@ -272,6 +283,7 @@ service ApiService {
 
     RelationActionResponse RelationAction(1: RelationActionRequest req) (api.post="douyin/relation/action/")
     RelationFollowListResponse RelationFollowList(1: RelationFollowListRequest req) (api.get="douyin/relation/follow/list/")
+    RelationFollowerListResponse RelationFollowerList(1: RelationFollowerListRequest req) (api.get="douyin/relation/follower/list/")
     RelationFriendListResponse RelationFriendList(1: RelationFriendListRequest req) (api.get="douyin/relation/friend/list/")
 
     MessageChatResponse MessageChat(1: MessageChatRequest req) (api.get="douyin/message/chat/")

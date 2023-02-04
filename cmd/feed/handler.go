@@ -4,8 +4,8 @@ import (
 	"context"
 	"github.com/1037group/dousheng/dal/db"
 	douyin_feed "github.com/1037group/dousheng/kitex_gen/douyin_feed"
+	"github.com/1037group/dousheng/kitex_gen/douyin_user"
 	"github.com/1037group/dousheng/pack"
-	"github.com/1037group/dousheng/pkg/configs/sql"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"time"
 )
@@ -29,7 +29,7 @@ func (s *FeedServiceImpl) Feed(ctx context.Context, req *douyin_feed.FeedRequest
 	}
 	klog.CtxInfof(ctx, "res: %+v", res)
 
-	userMap := make(map[int64]sql.User)
+	userMap := make(map[int64]douyin_user.User)
 	var userIDs []int64
 	for _, m := range res {
 		userIDs = append(userIDs, m.UserId)
@@ -42,7 +42,24 @@ func (s *FeedServiceImpl) Feed(ctx context.Context, req *douyin_feed.FeedRequest
 	}
 
 	for _, m := range users {
-		userMap[m.UserId] = *m
+		var isFollow bool
+
+		// 设置了token时检验是否follow
+		if req.ReqUserId != nil {
+			isFollow, err = db.CheckFollow(ctx, db.DB, *req.ReqUserId, m.UserId)
+			if err != nil {
+				klog.CtxErrorf(ctx, err.Error())
+				return nil, err
+			}
+		}
+
+		userMap[m.UserId] = douyin_user.User{
+			Id:            m.UserId,
+			Name:          m.UserName,
+			FollowCount:   &m.UserFollowCount,
+			FollowerCount: &m.UserFollowerCount,
+			IsFollow:      isFollow,
+		}
 	}
 
 	videoList := pack.Videos(res, userMap)

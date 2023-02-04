@@ -31,7 +31,7 @@ func (p *PublishActionRequest) FastRead(buf []byte) (int, error) {
 	var l int
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetUserId bool = false
+	var issetReqUserId bool = false
 	var issetTitle bool = false
 	var issetVideoPlayUrl bool = false
 	var issetVideoCoverUrl bool = false
@@ -58,7 +58,7 @@ func (p *PublishActionRequest) FastRead(buf []byte) (int, error) {
 				if err != nil {
 					goto ReadFieldError
 				}
-				issetUserId = true
+				issetReqUserId = true
 			} else {
 				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
 				offset += l
@@ -131,7 +131,7 @@ func (p *PublishActionRequest) FastRead(buf []byte) (int, error) {
 		goto ReadStructEndError
 	}
 
-	if !issetUserId {
+	if !issetReqUserId {
 		fieldId = 1
 		goto RequiredFieldNotSetError
 	}
@@ -175,7 +175,7 @@ func (p *PublishActionRequest) FastReadField1(buf []byte) (int, error) {
 	} else {
 		offset += l
 
-		p.UserId = v
+		p.ReqUserId = v
 
 	}
 	return offset, nil
@@ -258,8 +258,8 @@ func (p *PublishActionRequest) BLength() int {
 
 func (p *PublishActionRequest) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "user_id", thrift.I64, 1)
-	offset += bthrift.Binary.WriteI64(buf[offset:], p.UserId)
+	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "req_user_id", thrift.I64, 1)
+	offset += bthrift.Binary.WriteI64(buf[offset:], p.ReqUserId)
 
 	offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
 	return offset
@@ -294,8 +294,8 @@ func (p *PublishActionRequest) fastWriteField4(buf []byte, binaryWriter bthrift.
 
 func (p *PublishActionRequest) field1Length() int {
 	l := 0
-	l += bthrift.Binary.FieldBeginLength("user_id", thrift.I64, 1)
-	l += bthrift.Binary.I64Length(p.UserId)
+	l += bthrift.Binary.FieldBeginLength("req_user_id", thrift.I64, 1)
+	l += bthrift.Binary.I64Length(p.ReqUserId)
 
 	l += bthrift.Binary.FieldEndLength()
 	return l
@@ -524,6 +524,7 @@ func (p *PublishListRequest) FastRead(buf []byte) (int, error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetUserId bool = false
+	var issetReqUserId bool = false
 	_, l, err = bthrift.Binary.ReadStructBegin(buf)
 	offset += l
 	if err != nil {
@@ -555,6 +556,21 @@ func (p *PublishListRequest) FastRead(buf []byte) (int, error) {
 					goto SkipFieldError
 				}
 			}
+		case 2:
+			if fieldTypeId == thrift.I64 {
+				l, err = p.FastReadField2(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+				issetReqUserId = true
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
 		default:
 			l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
 			offset += l
@@ -577,6 +593,11 @@ func (p *PublishListRequest) FastRead(buf []byte) (int, error) {
 
 	if !issetUserId {
 		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetReqUserId {
+		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
 	return offset, nil
@@ -610,6 +631,20 @@ func (p *PublishListRequest) FastReadField1(buf []byte) (int, error) {
 	return offset, nil
 }
 
+func (p *PublishListRequest) FastReadField2(buf []byte) (int, error) {
+	offset := 0
+
+	if v, l, err := bthrift.Binary.ReadI64(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+
+		p.ReqUserId = v
+
+	}
+	return offset, nil
+}
+
 // for compatibility
 func (p *PublishListRequest) FastWrite(buf []byte) int {
 	return 0
@@ -620,6 +655,7 @@ func (p *PublishListRequest) FastWriteNocopy(buf []byte, binaryWriter bthrift.Bi
 	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "PublishListRequest")
 	if p != nil {
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
+		offset += p.fastWriteField2(buf[offset:], binaryWriter)
 	}
 	offset += bthrift.Binary.WriteFieldStop(buf[offset:])
 	offset += bthrift.Binary.WriteStructEnd(buf[offset:])
@@ -631,6 +667,7 @@ func (p *PublishListRequest) BLength() int {
 	l += bthrift.Binary.StructBeginLength("PublishListRequest")
 	if p != nil {
 		l += p.field1Length()
+		l += p.field2Length()
 	}
 	l += bthrift.Binary.FieldStopLength()
 	l += bthrift.Binary.StructEndLength()
@@ -646,10 +683,28 @@ func (p *PublishListRequest) fastWriteField1(buf []byte, binaryWriter bthrift.Bi
 	return offset
 }
 
+func (p *PublishListRequest) fastWriteField2(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "req_user_id", thrift.I64, 2)
+	offset += bthrift.Binary.WriteI64(buf[offset:], p.ReqUserId)
+
+	offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	return offset
+}
+
 func (p *PublishListRequest) field1Length() int {
 	l := 0
 	l += bthrift.Binary.FieldBeginLength("user_id", thrift.I64, 1)
 	l += bthrift.Binary.I64Length(p.UserId)
+
+	l += bthrift.Binary.FieldEndLength()
+	return l
+}
+
+func (p *PublishListRequest) field2Length() int {
+	l := 0
+	l += bthrift.Binary.FieldBeginLength("req_user_id", thrift.I64, 2)
+	l += bthrift.Binary.I64Length(p.ReqUserId)
 
 	l += bthrift.Binary.FieldEndLength()
 	return l

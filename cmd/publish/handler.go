@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/1037group/dousheng/dal/db"
 	douyin_publish "github.com/1037group/dousheng/kitex_gen/douyin_publish"
+	"github.com/1037group/dousheng/kitex_gen/douyin_user"
 	"github.com/1037group/dousheng/pack"
 	"github.com/1037group/dousheng/pkg/configs/sql"
 	"github.com/1037group/dousheng/pkg/errno"
@@ -20,7 +21,7 @@ func (s *PublishServiceImpl) PublishAction(ctx context.Context, req *douyin_publ
 
 	t := time.Now()
 	video := sql.Video{
-		UserId:             req.UserId,
+		UserId:             req.ReqUserId,
 		VideoPlayUrl:       req.VideoPlayUrl,
 		VideoCoverUrl:      req.VideoCoverUrl,
 		VideoFavoriteCount: 0,
@@ -53,7 +54,7 @@ func (s *PublishServiceImpl) PublishList(ctx context.Context, req *douyin_publis
 		return nil, err
 	}
 
-	userMap := make(map[int64]sql.User)
+	userMap := make(map[int64]douyin_user.User)
 	var userIDs []int64
 
 	for _, m := range res {
@@ -67,7 +68,19 @@ func (s *PublishServiceImpl) PublishList(ctx context.Context, req *douyin_publis
 	}
 
 	for _, m := range users {
-		userMap[m.UserId] = *m
+		isFollow, err := db.CheckFollow(ctx, db.DB, req.ReqUserId, m.UserId)
+		if err != nil {
+			klog.CtxErrorf(ctx, err.Error())
+			return nil, err
+		}
+
+		userMap[m.UserId] = douyin_user.User{
+			Id:            m.UserId,
+			Name:          m.UserName,
+			FollowCount:   &m.UserFollowCount,
+			FollowerCount: &m.UserFollowerCount,
+			IsFollow:      isFollow,
+		}
 	}
 	videoList := pack.Videos(res, userMap)
 

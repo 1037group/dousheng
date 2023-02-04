@@ -51,3 +51,25 @@ func RelationAction(ctx context.Context, req *douyin_relation.RelationActionRequ
 	}
 	return resp, nil
 }
+
+func RelationFollowList(ctx context.Context, req *douyin_relation.RelationFollowListRequest) (resp *douyin_relation.RelationFollowListResponse, err error) {
+	resp, err = relationClient.RelationFollowList(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode != 0 {
+		return nil, errno.NewErrNo(resp.StatusCode, *resp.StatusMsg)
+	}
+	return resp, nil
+}
+
+func RelationFollowerList(ctx context.Context, req *douyin_relation.RelationFollowerListRequest) (resp *douyin_relation.RelationFollowerListResponse, err error) {
+	resp, err = relationClient.RelationFollowerList(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode != 0 {
+		return nil, errno.NewErrNo(resp.StatusCode, *resp.StatusMsg)
+	}
+	return resp, nil
+}

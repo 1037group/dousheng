@@ -3,7 +3,7 @@ namespace go douyin_publish
 include "feed.thrift"
 
 struct PublishActionRequest {
-    1: required i64 user_id
+    1: required i64 req_user_id
     2: required string title
     3: required string video_play_url
     4: required string video_cover_url
@@ -16,6 +16,7 @@ struct PublishActionResponse {
 
 struct PublishListRequest {
     1: required i64 user_id
+    2: required i64 req_user_id
 }
 
 struct PublishListResponse {

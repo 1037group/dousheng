@@ -19,9 +19,10 @@ func NewServiceInfo() *kitex.ServiceInfo {
 	serviceName := "RelationService"
 	handlerType := (*douyin_relation.RelationService)(nil)
 	methods := map[string]kitex.MethodInfo{
-		"RelationAction":     kitex.NewMethodInfo(relationActionHandler, newRelationServiceRelationActionArgs, newRelationServiceRelationActionResult, false),
-		"RelationFollowList": kitex.NewMethodInfo(relationFollowListHandler, newRelationServiceRelationFollowListArgs, newRelationServiceRelationFollowListResult, false),
-		"RelationFriendList": kitex.NewMethodInfo(relationFriendListHandler, newRelationServiceRelationFriendListArgs, newRelationServiceRelationFriendListResult, false),
+		"RelationAction":       kitex.NewMethodInfo(relationActionHandler, newRelationServiceRelationActionArgs, newRelationServiceRelationActionResult, false),
+		"RelationFollowList":   kitex.NewMethodInfo(relationFollowListHandler, newRelationServiceRelationFollowListArgs, newRelationServiceRelationFollowListResult, false),
+		"RelationFollowerList": kitex.NewMethodInfo(relationFollowerListHandler, newRelationServiceRelationFollowerListArgs, newRelationServiceRelationFollowerListResult, false),
+		"RelationFriendList":   kitex.NewMethodInfo(relationFriendListHandler, newRelationServiceRelationFriendListArgs, newRelationServiceRelationFriendListResult, false),
 	}
 	extra := map[string]interface{}{
 		"PackageName": "douyin_relation",
@@ -73,6 +74,24 @@ func newRelationServiceRelationFollowListResult() interface{} {
 	return douyin_relation.NewRelationServiceRelationFollowListResult()
 }
 
+func relationFollowerListHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*douyin_relation.RelationServiceRelationFollowerListArgs)
+	realResult := result.(*douyin_relation.RelationServiceRelationFollowerListResult)
+	success, err := handler.(douyin_relation.RelationService).RelationFollowerList(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newRelationServiceRelationFollowerListArgs() interface{} {
+	return douyin_relation.NewRelationServiceRelationFollowerListArgs()
+}
+
+func newRelationServiceRelationFollowerListResult() interface{} {
+	return douyin_relation.NewRelationServiceRelationFollowerListResult()
+}
+
 func relationFriendListHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*douyin_relation.RelationServiceRelationFriendListArgs)
 	realResult := result.(*douyin_relation.RelationServiceRelationFriendListResult)
@@ -116,6 +135,16 @@ func (p *kClient) RelationFollowList(ctx context.Context, req *douyin_relation.R
 	_args.Req = req
 	var _result douyin_relation.RelationServiceRelationFollowListResult
 	if err = p.c.Call(ctx, "RelationFollowList", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) RelationFollowerList(ctx context.Context, req *douyin_relation.RelationFollowerListRequest) (r *douyin_relation.RelationFollowerListResponse, err error) {
+	var _args douyin_relation.RelationServiceRelationFollowerListArgs
+	_args.Req = req
+	var _result douyin_relation.RelationServiceRelationFollowerListResult
+	if err = p.c.Call(ctx, "RelationFollowerList", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

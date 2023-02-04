@@ -11,7 +11,7 @@ import (
 )
 
 type PublishActionRequest struct {
-	UserId        int64  `thrift:"user_id,1,required" frugal:"1,required,i64" json:"user_id"`
+	ReqUserId     int64  `thrift:"req_user_id,1,required" frugal:"1,required,i64" json:"req_user_id"`
 	Title         string `thrift:"title,2,required" frugal:"2,required,string" json:"title"`
 	VideoPlayUrl  string `thrift:"video_play_url,3,required" frugal:"3,required,string" json:"video_play_url"`
 	VideoCoverUrl string `thrift:"video_cover_url,4,required" frugal:"4,required,string" json:"video_cover_url"`
@@ -25,8 +25,8 @@ func (p *PublishActionRequest) InitDefault() {
 	*p = PublishActionRequest{}
 }
 
-func (p *PublishActionRequest) GetUserId() (v int64) {
-	return p.UserId
+func (p *PublishActionRequest) GetReqUserId() (v int64) {
+	return p.ReqUserId
 }
 
 func (p *PublishActionRequest) GetTitle() (v string) {
@@ -40,8 +40,8 @@ func (p *PublishActionRequest) GetVideoPlayUrl() (v string) {
 func (p *PublishActionRequest) GetVideoCoverUrl() (v string) {
 	return p.VideoCoverUrl
 }
-func (p *PublishActionRequest) SetUserId(val int64) {
-	p.UserId = val
+func (p *PublishActionRequest) SetReqUserId(val int64) {
+	p.ReqUserId = val
 }
 func (p *PublishActionRequest) SetTitle(val string) {
 	p.Title = val
@@ -54,7 +54,7 @@ func (p *PublishActionRequest) SetVideoCoverUrl(val string) {
 }
 
 var fieldIDToName_PublishActionRequest = map[int16]string{
-	1: "user_id",
+	1: "req_user_id",
 	2: "title",
 	3: "video_play_url",
 	4: "video_cover_url",
@@ -64,7 +64,7 @@ func (p *PublishActionRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetUserId bool = false
+	var issetReqUserId bool = false
 	var issetTitle bool = false
 	var issetVideoPlayUrl bool = false
 	var issetVideoCoverUrl bool = false
@@ -88,7 +88,7 @@ func (p *PublishActionRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetUserId = true
+				issetReqUserId = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -141,7 +141,7 @@ func (p *PublishActionRequest) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
-	if !issetUserId {
+	if !issetReqUserId {
 		fieldId = 1
 		goto RequiredFieldNotSetError
 	}
@@ -182,7 +182,7 @@ func (p *PublishActionRequest) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
-		p.UserId = v
+		p.ReqUserId = v
 	}
 	return nil
 }
@@ -256,10 +256,10 @@ WriteStructEndError:
 }
 
 func (p *PublishActionRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("user_id", thrift.I64, 1); err != nil {
+	if err = oprot.WriteFieldBegin("req_user_id", thrift.I64, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.UserId); err != nil {
+	if err := oprot.WriteI64(p.ReqUserId); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -336,7 +336,7 @@ func (p *PublishActionRequest) DeepEqual(ano *PublishActionRequest) bool {
 	} else if p == nil || ano == nil {
 		return false
 	}
-	if !p.Field1DeepEqual(ano.UserId) {
+	if !p.Field1DeepEqual(ano.ReqUserId) {
 		return false
 	}
 	if !p.Field2DeepEqual(ano.Title) {
@@ -353,7 +353,7 @@ func (p *PublishActionRequest) DeepEqual(ano *PublishActionRequest) bool {
 
 func (p *PublishActionRequest) Field1DeepEqual(src int64) bool {
 
-	if p.UserId != src {
+	if p.ReqUserId != src {
 		return false
 	}
 	return true
@@ -628,7 +628,8 @@ func (p *PublishActionResponse) Field2DeepEqual(src *string) bool {
 }
 
 type PublishListRequest struct {
-	UserId int64 `thrift:"user_id,1,required" frugal:"1,required,i64" json:"user_id"`
+	UserId    int64 `thrift:"user_id,1,required" frugal:"1,required,i64" json:"user_id"`
+	ReqUserId int64 `thrift:"req_user_id,2,required" frugal:"2,required,i64" json:"req_user_id"`
 }
 
 func NewPublishListRequest() *PublishListRequest {
@@ -642,12 +643,20 @@ func (p *PublishListRequest) InitDefault() {
 func (p *PublishListRequest) GetUserId() (v int64) {
 	return p.UserId
 }
+
+func (p *PublishListRequest) GetReqUserId() (v int64) {
+	return p.ReqUserId
+}
 func (p *PublishListRequest) SetUserId(val int64) {
 	p.UserId = val
+}
+func (p *PublishListRequest) SetReqUserId(val int64) {
+	p.ReqUserId = val
 }
 
 var fieldIDToName_PublishListRequest = map[int16]string{
 	1: "user_id",
+	2: "req_user_id",
 }
 
 func (p *PublishListRequest) Read(iprot thrift.TProtocol) (err error) {
@@ -655,6 +664,7 @@ func (p *PublishListRequest) Read(iprot thrift.TProtocol) (err error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetUserId bool = false
+	var issetReqUserId bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -681,6 +691,17 @@ func (p *PublishListRequest) Read(iprot thrift.TProtocol) (err error) {
 					goto SkipFieldError
 				}
 			}
+		case 2:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetReqUserId = true
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
 		default:
 			if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
@@ -697,6 +718,11 @@ func (p *PublishListRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetUserId {
 		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetReqUserId {
+		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -726,6 +752,15 @@ func (p *PublishListRequest) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
+func (p *PublishListRequest) ReadField2(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		p.ReqUserId = v
+	}
+	return nil
+}
+
 func (p *PublishListRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
 	if err = oprot.WriteStructBegin("PublishListRequest"); err != nil {
@@ -734,6 +769,10 @@ func (p *PublishListRequest) Write(oprot thrift.TProtocol) (err error) {
 	if p != nil {
 		if err = p.writeField1(oprot); err != nil {
 			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
 			goto WriteFieldError
 		}
 
@@ -772,6 +811,23 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
+func (p *PublishListRequest) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req_user_id", thrift.I64, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.ReqUserId); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
 func (p *PublishListRequest) String() string {
 	if p == nil {
 		return "<nil>"
@@ -788,12 +844,22 @@ func (p *PublishListRequest) DeepEqual(ano *PublishListRequest) bool {
 	if !p.Field1DeepEqual(ano.UserId) {
 		return false
 	}
+	if !p.Field2DeepEqual(ano.ReqUserId) {
+		return false
+	}
 	return true
 }
 
 func (p *PublishListRequest) Field1DeepEqual(src int64) bool {
 
 	if p.UserId != src {
+		return false
+	}
+	return true
+}
+func (p *PublishListRequest) Field2DeepEqual(src int64) bool {
+
+	if p.ReqUserId != src {
 		return false
 	}
 	return true
