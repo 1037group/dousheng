@@ -6,10 +6,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
+	"strconv"
+
 	"github.com/1037group/dousheng/cmd/api/biz/logic"
 	douyin_api "github.com/1037group/dousheng/cmd/api/biz/model/douyin_api"
 	"github.com/1037group/dousheng/cmd/api/biz/mw"
 	"github.com/1037group/dousheng/cmd/api/biz/rpc"
+	"github.com/1037group/dousheng/kitex_gen/douyin_favorite"
 	"github.com/1037group/dousheng/kitex_gen/douyin_feed"
 	"github.com/1037group/dousheng/kitex_gen/douyin_publish"
 	"github.com/1037group/dousheng/kitex_gen/douyin_relation"
@@ -19,8 +23,6 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
-	"os"
-	"strconv"
 )
 
 // Feed .
@@ -262,6 +264,7 @@ func PublishList(ctx context.Context, c *app.RequestContext) {
 // FavoriteAction .
 // @router /douyin/favorite/action [POST]
 func FavoriteAction(ctx context.Context, c *app.RequestContext) {
+	hlog.CtxInfof(ctx, "[FavoriteAction] api is called.")
 	var err error
 	var req douyin_api.FavoriteActionRequest
 	err = c.BindAndValidate(&req)
@@ -269,8 +272,26 @@ func FavoriteAction(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
+	// parse userId from token
+	user, _ := c.Get(mw.JwtMiddleware.IdentityKey)
+	hlog.CtxInfof(ctx, "user: %+v", user)
+	userId := user.(*douyin_api.User).ID
+	hlog.CtxInfof(ctx, "userId: %+v", userId)
 
-	resp := new(douyin_api.FavoriteActionResponse)
+	rpcResp, err := rpc.FavoriteAction(ctx, &douyin_favorite.FavoriteActionRequest{
+		UserId:     userId,
+		VideoId:    req.VideoID,
+		ActionType: req.ActionType,
+	})
+	hlog.CtxInfof(ctx, "[FavoriteAction] api call rpc end. rpcResp: %+v", rpcResp)
+	if err != nil {
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
+	resp := douyin_api.FavoriteActionResponse{
+		StatusCode: rpcResp.StatusCode,
+		StatusMsg:  rpcResp.StatusMsg,
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -278,6 +299,7 @@ func FavoriteAction(ctx context.Context, c *app.RequestContext) {
 // FavoriteList .
 // @router douyin/favorite/list [GET]
 func FavoriteList(ctx context.Context, c *app.RequestContext) {
+	hlog.CtxInfof(ctx, "[FavoriteList] api is called.")
 	var err error
 	var req douyin_api.FavoriteListRequest
 	err = c.BindAndValidate(&req)
@@ -285,8 +307,15 @@ func FavoriteList(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
-
-	resp := new(douyin_api.FavoriteListResponse)
+	rpcResp, err := rpc.FavoriteList(ctx, &douyin_favorite.FavoriteListRequest{
+		UserId: req.UserID,
+	})
+	hlog.CtxInfof(ctx, "[FavoriteList] api call rpc end. rpcResp: %+v", rpcResp)
+	if err != nil {
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
+	resp := pack.FavoriteListResponseRpc2Api(rpcResp)
 
 	c.JSON(consts.StatusOK, resp)
 }
