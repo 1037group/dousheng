@@ -10,6 +10,7 @@ import (
 )
 
 func UpdateRelation(ctx context.Context, tx *gorm.DB, userId int64, toUserId int64, actionType int32) error {
+	klog.CtxInfof(ctx, "[db.UpdateRelation] userId: %+v, toUserId: %+v, actionType: %+v", userId, toUserId, actionType)
 	t := time.Now()
 	relation := sql.Relation{
 		UserId:   userId,
@@ -41,14 +42,45 @@ func UpdateRelation(ctx context.Context, tx *gorm.DB, userId int64, toUserId int
 
 // CheckFollow check if userId follows toUserId
 func CheckFollow(ctx context.Context, tx *gorm.DB, userId int64, toUserId int64) (bool, error) {
+	klog.CtxInfof(ctx, "[db.CheckFollow] userId: %+v, toUserId: %+v", userId, toUserId)
 	relation := sql.Relation{}
 	results := tx.Table(relation.TableName()).Where(fmt.Sprintf("%s = ? and %s = ? and %s = ?", sql.SQL_RELATION_USER_ID, sql.SQL_RELATION_TO_USER_ID, sql.SQL_RELATION_STATUS), userId, toUserId, sql.SQL_RELATION_STATUS_FOLLOW).First(&relation)
 	if results.Error != nil {
 		if results.Error == gorm.ErrRecordNotFound {
-			return true, nil
+			return false, nil
 		}
 		klog.CtxErrorf(ctx, results.Error.Error())
 		return false, results.Error
 	}
-	return false, nil
+	return true, nil
+}
+
+func MGetFollowList(ctx context.Context, tx *gorm.DB, userId int64) ([]*sql.Relation, error) {
+	klog.CtxInfof(ctx, "[db.MGetFollowList] userId: %+v", userId)
+	res := make([]*sql.Relation, 0)
+
+	results := tx.WithContext(ctx).Where(fmt.Sprintf("%s = ? and %s = ?", sql.SQL_RELATION_USER_ID, sql.SQL_RELATION_STATUS), userId, sql.SQL_RELATION_STATUS_FOLLOW).Find(&res)
+	if results.Error != nil {
+		if results.Error == gorm.ErrRecordNotFound {
+			return res, nil
+		}
+		klog.CtxErrorf(ctx, results.Error.Error())
+		return nil, results.Error
+	}
+	return res, nil
+}
+
+func MGetFollowerList(ctx context.Context, tx *gorm.DB, userId int64) ([]*sql.Relation, error) {
+	klog.CtxInfof(ctx, "[db.MGetFollowerList] userId: %+v", userId)
+	res := make([]*sql.Relation, 0)
+
+	results := tx.WithContext(ctx).Where(fmt.Sprintf("%s = ? and %s = ?", sql.SQL_RELATION_TO_USER_ID, sql.SQL_RELATION_STATUS), userId, sql.SQL_RELATION_STATUS_FOLLOW).Find(&res)
+	if results.Error != nil {
+		if results.Error == gorm.ErrRecordNotFound {
+			return res, nil
+		}
+		klog.CtxErrorf(ctx, results.Error.Error())
+		return nil, results.Error
+	}
+	return res, nil
 }

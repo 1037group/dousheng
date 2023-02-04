@@ -81,10 +81,17 @@ func Register(r *server.Hertz) {
 				}
 			}
 			{
+				_follower := _relation.Group("/follower", _followerMw()...)
+				{
+					_list3 := _follower.Group("/list", _list3Mw()...)
+					_list3.GET("/", append(_relationfollowerlistMw(), douyin_api.RelationFollowerList)...)
+				}
+			}
+			{
 				_friend := _relation.Group("/friend", _friendMw()...)
 				{
-					_list3 := _friend.Group("/list", _list3Mw()...)
-					_list3.GET("/", append(_relationfriendlistMw(), douyin_api.RelationFriendList)...)
+					_list4 := _friend.Group("/list", _list4Mw()...)
+					_list4.GET("/", append(_relationfriendlistMw(), douyin_api.RelationFriendList)...)
 				}
 			}
 		}

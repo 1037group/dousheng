@@ -13,6 +13,7 @@ import (
 type Client interface {
 	RelationAction(ctx context.Context, req *douyin_relation.RelationActionRequest, callOptions ...callopt.Option) (r *douyin_relation.RelationActionResponse, err error)
 	RelationFollowList(ctx context.Context, req *douyin_relation.RelationFollowListRequest, callOptions ...callopt.Option) (r *douyin_relation.RelationFollowListResponse, err error)
+	RelationFollowerList(ctx context.Context, req *douyin_relation.RelationFollowerListRequest, callOptions ...callopt.Option) (r *douyin_relation.RelationFollowerListResponse, err error)
 	RelationFriendList(ctx context.Context, req *douyin_relation.RelationFriendListRequest, callOptions ...callopt.Option) (r *douyin_relation.RelationFriendListResponse, err error)
 }
 
@@ -53,6 +54,11 @@ func (p *kRelationServiceClient) RelationAction(ctx context.Context, req *douyin
 func (p *kRelationServiceClient) RelationFollowList(ctx context.Context, req *douyin_relation.RelationFollowListRequest, callOptions ...callopt.Option) (r *douyin_relation.RelationFollowListResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.RelationFollowList(ctx, req)
+}
+
+func (p *kRelationServiceClient) RelationFollowerList(ctx context.Context, req *douyin_relation.RelationFollowerListRequest, callOptions ...callopt.Option) (r *douyin_relation.RelationFollowerListResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.RelationFollowerList(ctx, req)
 }
 
 func (p *kRelationServiceClient) RelationFriendList(ctx context.Context, req *douyin_relation.RelationFriendListRequest, callOptions ...callopt.Option) (r *douyin_relation.RelationFriendListResponse, err error) {
