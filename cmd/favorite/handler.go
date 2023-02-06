@@ -6,6 +6,7 @@ import (
 
 	"github.com/1037group/dousheng/dal/db"
 	douyin_favorite "github.com/1037group/dousheng/kitex_gen/douyin_favorite"
+	"github.com/1037group/dousheng/kitex_gen/douyin_user"
 	"github.com/1037group/dousheng/pack"
 	"github.com/1037group/dousheng/pkg/configs/sql"
 	"github.com/1037group/dousheng/pkg/errno"
@@ -100,20 +101,26 @@ func (s *FavoriteServiceImpl) FavoriteList(ctx context.Context, req *douyin_favo
 		userIDs = append(userIDs, m.UserId)
 	}
 
-	userMap := make(map[int64]sql.User)
+	userMap := make(map[int64]douyin_user.User)
 	//查User表，根据UserId获取对应的user信息
 	users, err := db.MGetUserByID(ctx, db.DB, userIDs)
 	if err != nil {
 		klog.CtxErrorf(ctx, err.Error())
 		return nil, err
 	}
+
 	//打包成信息
-	klog.CtxInfof(ctx, "[FavoriteList][len(users)] %+v", len(users))
 	for _, m := range users {
-		userMap[m.UserId] = *m
+		userMap[m.UserId] = douyin_user.User{
+			Id:            m.UserId,
+			Name:          m.UserName,
+			FollowCount:   &m.UserFollowCount,
+			FollowerCount: &m.UserFollowerCount,
+			IsFollow:      false,
+		}
 	}
 	videoList := pack.Videos(videos, userMap)
-	klog.CtxInfof(ctx, "[videoList] %+v", videoList)
+
 	msg := "FavoriteList success"
 	return &douyin_favorite.FavoriteListResponse{
 		StatusCode: 0,
