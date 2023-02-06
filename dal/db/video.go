@@ -50,3 +50,11 @@ func CreateVideo(ctx context.Context, tx *gorm.DB, video *sql.Video) error {
 	klog.CtxInfof(ctx, "[CreateVideo] video: %+v\n", video)
 	return tx.WithContext(ctx).Create(video).Error
 }
+
+func AddFavoriteCount(ctx context.Context, tx *gorm.DB, video_id *int64) {
+
+}
+
+func MinusFavoriteCount(ctx context.Context, tx *gorm.DB, video_id *int64) {
+
+}
