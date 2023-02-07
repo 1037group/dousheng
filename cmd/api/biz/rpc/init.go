@@ -5,4 +5,5 @@ func Init() {
 	initUser()
 	initPublish()
 	initRelation()
+	initComment()
 }

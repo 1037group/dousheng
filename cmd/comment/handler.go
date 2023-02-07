@@ -24,7 +24,7 @@ func (s *CommentServiceImpl) CommentAction(ctx context.Context, req *douyin_comm
 	case 1:
 		t := time.Now()
 		comment := sql.Comment{
-			CommentId:      *req.CommentId,
+			CommentId:      0,
 			VideoId:        req.VideoId,
 			UserId:         req.UserId,
 			CommentContent: *req.CommentText,
