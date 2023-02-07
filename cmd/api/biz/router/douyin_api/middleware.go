@@ -128,12 +128,12 @@ func _relationfollowlistMw() []app.HandlerFunc {
 
 func _friendMw() []app.HandlerFunc {
 	// your code...
-	return nil
+	return []app.HandlerFunc{mw.JwtMiddleware.MiddlewareFunc()}
 }
 
 func _relationfriendlistMw() []app.HandlerFunc {
 	// your code...
-	return nil
+	return []app.HandlerFunc{mw.JwtMiddleware.MiddlewareFunc()}
 }
 
 func _userMw() []app.HandlerFunc {

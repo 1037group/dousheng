@@ -482,6 +482,8 @@ func RelationFollowList(ctx context.Context, c *app.RequestContext) {
 // RelationFriendList .
 // @router douyin/relation/friend/list [GET]
 func RelationFriendList(ctx context.Context, c *app.RequestContext) {
+	hlog.CtxInfof(ctx, "[RelationFriendList] api is called.")
+
 	var err error
 	var req douyin_api.RelationFriendListRequest
 	err = c.BindAndValidate(&req)
@@ -490,7 +492,30 @@ func RelationFriendList(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(douyin_api.RelationFriendListResponse)
+	// parse userId from token
+	reqUser, _ := c.Get(mw.JwtMiddleware.IdentityKey)
+	reqUserId := reqUser.(*douyin_api.User).ID
+	hlog.CtxInfof(ctx, "reqUserId: %+v", reqUserId)
+
+	// rpc
+	userId := req.UserID
+	if err != nil {
+		hlog.CtxErrorf(ctx, err.Error())
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+	rpcResp, err := rpc.RelationFriendList(ctx, &douyin_relation.RelationFriendListRequest{
+		UserId:    userId,
+		ReqUserId: reqUserId,
+	})
+	hlog.CtxInfof(ctx, "[RelationFriendList] api call rpc end. rpcResp: %+v", rpcResp)
+	if err != nil {
+		hlog.CtxErrorf(ctx, err.Error())
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
+
+	resp := pack.RelationFriendListResponseRpc2Api(rpcResp)
 
 	c.JSON(consts.StatusOK, resp)
 }
