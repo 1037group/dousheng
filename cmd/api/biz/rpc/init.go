@@ -7,4 +7,5 @@ func Init() {
 	initRelation()
 	initComment()
 	initFavorite()
+	initMessage()
 }

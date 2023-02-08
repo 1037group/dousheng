@@ -16,6 +16,7 @@ import (
 	"github.com/1037group/dousheng/kitex_gen/douyin_comment"
 	"github.com/1037group/dousheng/kitex_gen/douyin_favorite"
 	"github.com/1037group/dousheng/kitex_gen/douyin_feed"
+	"github.com/1037group/dousheng/kitex_gen/douyin_message"
 	"github.com/1037group/dousheng/kitex_gen/douyin_publish"
 	"github.com/1037group/dousheng/kitex_gen/douyin_relation"
 	"github.com/1037group/dousheng/kitex_gen/douyin_user"
@@ -523,6 +524,8 @@ func RelationFriendList(ctx context.Context, c *app.RequestContext) {
 // MessageChat .
 // @router douyin/message/chat [GET]
 func MessageChat(ctx context.Context, c *app.RequestContext) {
+	hlog.CtxInfof(ctx, "[MessageChat] api is called.")
+
 	var err error
 	var req douyin_api.MessageChatRequest
 	err = c.BindAndValidate(&req)
@@ -531,7 +534,22 @@ func MessageChat(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(douyin_api.MessageChatResponse)
+	User, _ := c.Get(mw.JwtMiddleware.IdentityKey)
+	UserId := User.(*douyin_api.User).ID
+	hlog.CtxInfof(ctx, "userId: %+v", UserId)
+
+	rpcResp, err := rpc.MessageChat(ctx, &douyin_message.MessageChatRequest{
+		UserId:   UserId,
+		ToUserId: req.ToUserID,
+	})
+
+	hlog.CtxInfof(ctx, "[MessageChat] api call rpc end. rpcResp: %+v", rpcResp)
+	if err != nil {
+		hlog.CtxErrorf(ctx, err.Error())
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
+	resp := pack.MessageChatResponseRpc2Api(rpcResp)
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -539,6 +557,8 @@ func MessageChat(ctx context.Context, c *app.RequestContext) {
 // MessageAction .
 // @router douyin/message/action [POST]
 func MessageAction(ctx context.Context, c *app.RequestContext) {
+	hlog.CtxInfof(ctx, "[MessageAction] api is called.")
+
 	var err error
 	var req douyin_api.MessageActionRequest
 	err = c.BindAndValidate(&req)
@@ -546,8 +566,28 @@ func MessageAction(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
+	User, _ := c.Get(mw.JwtMiddleware.IdentityKey)
+	UserId := User.(*douyin_api.User).ID
+	hlog.CtxInfof(ctx, "userId: %+v", UserId)
 
-	resp := new(douyin_api.MessageActionResponse)
+	actionType := req.ActionType
+
+	rpcResp, err := rpc.MessageAction(ctx, &douyin_message.MessageActionRequest{
+		UserId:     UserId,
+		ToUserId:   req.ToUserID,
+		ActionType: int32(actionType),
+		Content:    req.Content,
+	})
+	hlog.CtxInfof(ctx, "[MessageAction] api call rpc end. rpcResp: %+v", rpcResp)
+	if err != nil {
+		hlog.CtxErrorf(ctx, err.Error())
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
+	resp := &douyin_api.MessageActionResponse{
+		StatusCode: rpcResp.StatusCode,
+		StatusMsg:  rpcResp.StatusMsg,
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }

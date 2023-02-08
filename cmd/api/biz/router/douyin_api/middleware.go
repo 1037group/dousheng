@@ -67,12 +67,12 @@ func _favorite_ctionMw() []app.HandlerFunc {
 
 func _messageMw() []app.HandlerFunc {
 	// your code...
-	return nil
+	return []app.HandlerFunc{mw.JwtMiddleware.MiddlewareFunc()}
 }
 
 func _messagechatMw() []app.HandlerFunc {
 	// your code...
-	return nil
+	return []app.HandlerFunc{mw.JwtMiddleware.MiddlewareFunc()}
 }
 
 func _action1Mw() []app.HandlerFunc {
