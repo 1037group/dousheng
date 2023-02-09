@@ -126,7 +126,7 @@ func CommentActionResponseRpc2Api(m *douyin_comment.CommentActionResponse) *douy
 	}
 
 	var user douyin_api.User
-	if m.Comment.User != nil {
+	if m.Comment != nil && m.Comment.User != nil {
 		user = douyin_api.User{
 			ID:            m.Comment.User.Id,
 			Name:          m.Comment.User.Name,

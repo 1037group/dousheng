@@ -335,8 +335,14 @@ func CommentList(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
+	// parse userId from token
+	reqUser, _ := c.Get(mw.JwtMiddleware.IdentityKey)
+	reqUserId := reqUser.(*douyin_api.User).ID
+	hlog.CtxInfof(ctx, "reqUserId: %+v", reqUserId)
+
 	rpcResp, err := rpc.CommentList(ctx, &douyin_comment.CommentListRequest{
-		VideoId: req.VideoID,
+		VideoId:   req.VideoID,
+		ReqUserId: &reqUserId,
 	})
 	hlog.CtxInfof(ctx, "[CommetList] api call rpc end. rpcResp: %+v", rpcResp)
 	if err != nil {

@@ -58,7 +58,10 @@ func (s *CommentServiceImpl) CommentAction(ctx context.Context, req *douyin_comm
 			Comment:    commentinfo,
 		}, nil
 	case 2:
-		db.DeleteComment(ctx, db.DB, *req.CommentId)
+		err := db.DeleteComment(ctx, db.DB, *req.CommentId)
+		if err != nil {
+			return nil, err
+		}
 		msg := "delete comment success"
 		return &douyin_comment.CommentActionResponse{
 			StatusCode: 0,
@@ -94,13 +97,22 @@ func (s *CommentServiceImpl) CommentList(ctx context.Context, req *douyin_commen
 		return nil, err
 	}
 	for _, m := range users {
+		var isFollow bool
 
+		// 设置了token时检验是否follow
+		if req.ReqUserId != nil {
+			isFollow, err = db.CheckFollow(ctx, db.DB, *req.ReqUserId, m.UserId)
+			if err != nil {
+				klog.CtxErrorf(ctx, err.Error())
+				return nil, err
+			}
+		}
 		userMap[m.UserId] = douyin_user.User{
 			Id:            m.UserId,
 			Name:          m.UserName,
 			FollowCount:   &m.UserFollowCount,
 			FollowerCount: &m.UserFollowerCount,
-			IsFollow:      false,
+			IsFollow:      isFollow,
 		}
 	}
 

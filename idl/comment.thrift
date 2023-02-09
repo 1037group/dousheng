@@ -25,6 +25,7 @@ struct Comment {
 
 struct CommentListRequest {
     1: required i64 video_id
+    2: optional i64 req_user_id
 }
 
 struct CommentListResponse {
