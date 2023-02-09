@@ -2,14 +2,12 @@ package main
 
 import (
 	"context"
-	"time"
 
 	"github.com/1037group/dousheng/cmd/favorite/logic"
 	"github.com/1037group/dousheng/dal/db"
 	douyin_favorite "github.com/1037group/dousheng/kitex_gen/douyin_favorite"
 	"github.com/1037group/dousheng/kitex_gen/douyin_user"
 	"github.com/1037group/dousheng/pack"
-	"github.com/1037group/dousheng/pkg/configs/sql"
 	"github.com/1037group/dousheng/pkg/errno"
 	"github.com/cloudwego/kitex/pkg/klog"
 )
@@ -21,14 +19,7 @@ type FavoriteServiceImpl struct{}
 func (s *FavoriteServiceImpl) FavoriteAction(ctx context.Context, req *douyin_favorite.FavoriteActionRequest) (resp *douyin_favorite.FavoriteActionResponse, err error) {
 	// TODO: Your code here...
 	klog.CtxInfof(ctx, "[FavoriteAction] %+v", req)
-	t := time.Now()
-	favorite := sql.Favorite{
-		UserId:     req.UserId,
-		VideoId:    req.VideoId,
-		IsFavorite: 1, //1代表点赞，0代表无点赞
-		DelState:   0,
-		Utime:      t,
-	}
+
 	//做一次gorm查询目前这个视频有没有被这个人点赞,然后再执行操作
 	res, err := db.MIsFavoriteByUserId(ctx, db.DB, &req.UserId, &req.VideoId)
 	if err != nil {
@@ -53,20 +44,14 @@ func (s *FavoriteServiceImpl) FavoriteAction(ctx context.Context, req *douyin_fa
 			StatusMsg:  &msg,
 		}, nil
 	}
-	if isFavor == -1 && req.ActionType == 1 { //该用户未点赞过该视频，创建点赞
-		err = db.CreateFavorite(ctx, &favorite)
+	if isFavor == -1 && req.ActionType == 1 { //该用户未点赞过该视频,创建点赞,已经使用事务
+		err = logic.CreateFavoriteAction(ctx, req)
 		if err != nil {
 			klog.CtxErrorf(ctx, err.Error())
-			return nil, errno.ParamErr
-		}
-		//更新video的favouriteCount
-		err = db.AddFavoriteCount(ctx, db.DB, req.VideoId)
-		if err != nil {
-			klog.CtxErrorf(ctx, err.Error())
-			return nil, errno.ParamErr
+			return nil, err
 		}
 
-	} else if (isFavor == 0 && req.ActionType == 1) || req.ActionType == 2 { //某个用户点赞过该视频,并想点赞或者取消点赞
+	} else if (isFavor == 0 && req.ActionType == 1) || req.ActionType == 2 { //某个用户点赞过该视频,并想点赞或者取消点赞,已经使用事务
 		err = logic.FavoriteAction(ctx, req)
 		if err != nil {
 			klog.CtxErrorf(ctx, err.Error())
@@ -115,12 +100,18 @@ func (s *FavoriteServiceImpl) FavoriteList(ctx context.Context, req *douyin_favo
 
 	//打包成信息
 	for _, m := range users {
+		//查询isFollow的关系
+		isFollow, err := db.CheckFollow(ctx, db.DB, req.ReqUserId, m.UserId)
+		if err != nil {
+			klog.CtxErrorf(ctx, err.Error())
+			return nil, err
+		}
 		userMap[m.UserId] = douyin_user.User{
 			Id:            m.UserId,
 			Name:          m.UserName,
 			FollowCount:   &m.UserFollowCount,
 			FollowerCount: &m.UserFollowerCount,
-			IsFollow:      false,
+			IsFollow:      isFollow,
 		}
 	}
 	videoList := pack.Videos(videos, userMap)
