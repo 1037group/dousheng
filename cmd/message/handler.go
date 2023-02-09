@@ -2,12 +2,11 @@ package main
 
 import (
 	"context"
-	"time"
 
+	"github.com/1037group/dousheng/cmd/message/logic"
 	"github.com/1037group/dousheng/dal/db"
 	douyin_message "github.com/1037group/dousheng/kitex_gen/douyin_message"
 	"github.com/1037group/dousheng/pack"
-	"github.com/1037group/dousheng/pkg/configs/sql"
 	"github.com/cloudwego/kitex/pkg/klog"
 )
 
@@ -36,16 +35,10 @@ func (s *MessageServiceImpl) MessageChat(ctx context.Context, req *douyin_messag
 // MessageAction implements the MessageServiceImpl interface.
 func (s *MessageServiceImpl) MessageAction(ctx context.Context, req *douyin_message.MessageActionRequest) (resp *douyin_message.MessageActionResponse, err error) {
 	klog.CtxInfof(ctx, "[MessageAction] %+v", req)
-	t := time.Now()
-	message := sql.Message{
-		UserId:         req.UserId,
-		ToUserId:       req.ToUserId,
-		CommentContent: req.Content,
-		Ctime:          t,
-		Utime:          t,
-	}
+
 	if req.ActionType == 1 {
-		err := db.SendMessage(ctx, &message)
+		//使用事务处理消息写入
+		err := logic.MessageAction(ctx, req)
 		if err != nil {
 			klog.CtxErrorf(ctx, err.Error())
 			return nil, err

@@ -14,15 +14,15 @@ import (
 	"gorm.io/gorm"
 )
 
-func GetRelationActionLockKey(userId, VideoId int64) string {
-	return fmt.Sprintf("RelationActionLock: %+v-%+v", userId, VideoId)
+func GetFavoriteActionLockKey(userId, VideoId int64) string {
+	return fmt.Sprintf("FavoriteActionLock: %+v-%+v", userId, VideoId)
 }
 
 // 点赞不存在记录,创建记录,使用事务
 func CreateFavoriteAction(ctx context.Context, req *douyin_favorite.FavoriteActionRequest) (err error) {
 	klog.CtxInfof(ctx, "[logic.CreateFavoriteAction] req: %+v", req)
 	// Redis 加锁
-	key := GetRelationActionLockKey(req.UserId, req.VideoId)
+	key := GetFavoriteActionLockKey(req.UserId, req.VideoId)
 	lock := redis.LockAcquire(ctx, key)
 	if lock == nil {
 		klog.CtxErrorf(ctx, errno.RedisLockFailed.ErrMsg)
@@ -64,7 +64,7 @@ func CreateFavoriteAction(ctx context.Context, req *douyin_favorite.FavoriteActi
 func FavoriteAction(ctx context.Context, req *douyin_favorite.FavoriteActionRequest) (err error) {
 	klog.CtxInfof(ctx, "[logic.FavoriteAction] req: %+v", req)
 	// Redis 加锁
-	key := GetRelationActionLockKey(req.UserId, req.VideoId)
+	key := GetFavoriteActionLockKey(req.UserId, req.VideoId)
 	lock := redis.LockAcquire(ctx, key)
 	if lock == nil {
 		klog.CtxErrorf(ctx, errno.RedisLockFailed.ErrMsg)

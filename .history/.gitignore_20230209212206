@@ -30,6 +30,4 @@ cmd/api/api
 /pkg/configs/redis/data
 /pkg/configs/redis/logs
 
-#ignore tmp/
-tmp/
 
