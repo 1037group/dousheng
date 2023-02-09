@@ -13,10 +13,6 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
-.history/cmd/favorite/
-.history/cmd/favorite/logic/
-.history/cmd/message/
-cmd/api/api
 
 # IDE config
 .vscode
