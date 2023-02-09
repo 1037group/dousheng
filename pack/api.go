@@ -153,7 +153,6 @@ func FavoriteListResponseRpc2Api(m *douyin_favorite.FavoriteListResponse) *douyi
 	if m == nil {
 		return nil
 	}
-	//rpc调用看看有没有需要改的
 	var videoList []*douyin_api.Video
 
 	for _, video := range m.VideoList {

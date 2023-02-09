@@ -13,6 +13,8 @@ func Message(m *sql.Message) *douyin_message.Message {
 	time := m.Ctime.String()
 	return &douyin_message.Message{
 		Id:         m.MessageId,
+		ToUserId:   m.ToUserId,
+		FromUserId: m.UserId,
 		Content:    m.CommentContent,
 		CreateTime: &time,
 	}
@@ -36,13 +38,15 @@ func MessageChatResponseRpc2Api(m *douyin_message.MessageChatResponse) *douyin_a
 	for _, message := range m.MessageList {
 		one := douyin_api.Message{
 			ID:         message.Id,
+			ToUserID:   message.ToUserId,
+			FromUserID: message.FromUserId,
 			Content:    message.Content,
 			CreateTime: message.CreateTime,
 		}
 		messageList = append(messageList, &one)
 	}
 	return &douyin_api.MessageChatResponse{
-		StatusCode:  0,
+		StatusCode:  m.StatusCode,
 		StatusMsg:   m.StatusMsg,
 		MessageList: messageList,
 	}
