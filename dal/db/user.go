@@ -7,6 +7,20 @@ import (
 	"gorm.io/gorm"
 )
 
+// GetUserById  get user info
+func GetUserByID(ctx context.Context, tx *gorm.DB, userID int64) (*sql.User, error) {
+	klog.CtxInfof(ctx, "[db.GetUserByID] userID: %+v\n", userID)
+
+	res := &sql.User{}
+
+	query := sql.SQL_USER_USER_ID + " = ?"
+	if err := tx.WithContext(ctx).Where(query, userID).Find(&res).Error; err != nil {
+		klog.CtxInfof(ctx, "[db.MGetUserByID] res: %+v\n", res)
+		return res, err
+	}
+	return res, nil
+}
+
 // MGetUserById multiple get list of user info
 func MGetUserByID(ctx context.Context, tx *gorm.DB, userIDs []int64) ([]*sql.User, error) {
 	klog.CtxInfof(ctx, "[db.MGetUserByID] userIDs: %+v\n", userIDs)

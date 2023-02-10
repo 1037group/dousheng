@@ -10,6 +10,7 @@ import (
 	douyin_api "github.com/1037group/dousheng/cmd/api/biz/model/douyin_api"
 	"github.com/1037group/dousheng/cmd/api/biz/mw"
 	"github.com/1037group/dousheng/cmd/api/biz/rpc"
+	"github.com/1037group/dousheng/kitex_gen/douyin_comment"
 	"github.com/1037group/dousheng/kitex_gen/douyin_feed"
 	"github.com/1037group/dousheng/kitex_gen/douyin_publish"
 	"github.com/1037group/dousheng/kitex_gen/douyin_relation"
@@ -301,8 +302,25 @@ func CommentAction(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
+	// parse userId from token
+	reqUser, _ := c.Get(mw.JwtMiddleware.IdentityKey)
+	reqUserId := reqUser.(*douyin_api.User).ID
+	hlog.CtxInfof(ctx, "reqUserId: %+v", reqUserId)
 
-	resp := new(douyin_api.CommentActionResponse)
+	rpcResp, err := rpc.CommentAction(ctx, &douyin_comment.CommentActionRequest{
+		UserId:      reqUserId,
+		VideoId:     req.VideoID,
+		ActionType:  req.ActionType,
+		CommentText: req.CommentText,
+		CommentId:   req.CommentID,
+	})
+	hlog.CtxInfof(ctx, "[CommentAction] api call rpc end. rpcResp: %+v", rpcResp)
+	if err != nil {
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
+
+	resp := pack.CommentActionResponseRpc2Api(rpcResp)
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -317,8 +335,21 @@ func CommentList(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
+	// parse userId from token
+	reqUser, _ := c.Get(mw.JwtMiddleware.IdentityKey)
+	reqUserId := reqUser.(*douyin_api.User).ID
+	hlog.CtxInfof(ctx, "reqUserId: %+v", reqUserId)
 
-	resp := new(douyin_api.CommentListResponse)
+	rpcResp, err := rpc.CommentList(ctx, &douyin_comment.CommentListRequest{
+		VideoId:   req.VideoID,
+		ReqUserId: &reqUserId,
+	})
+	hlog.CtxInfof(ctx, "[CommetList] api call rpc end. rpcResp: %+v", rpcResp)
+	if err != nil {
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
+	resp := pack.CommentListResponseRpc2Api(rpcResp)
 
 	c.JSON(consts.StatusOK, resp)
 }
