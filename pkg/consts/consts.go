@@ -12,10 +12,10 @@ const (
 	RelationServiceName = "relation_service"
 	UserServiceName     = "user_service"
 
-	MySQLDefaultDSN = "gorm:gorm@tcp(172.31.192.1:3306)/gorm?charset=utf8&parseTime=True&loc=Local"
+	MySQLDefaultDSN = "gorm:gorm@tcp(localhost:3306)/gorm?charset=utf8&parseTime=True&loc=Local"
 	TCP             = "tcp"
 	//"172.31.192.1"
-	RedisIp         = "172.31.192.1"
+	RedisIp         = "localhost"
 	RedisPort       = "6379"
 	RedisExpireTime = 600
 
