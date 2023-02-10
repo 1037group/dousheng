@@ -36,6 +36,7 @@ func CreateFavoriteAction(ctx context.Context, req *douyin_favorite.FavoriteActi
 		VideoId:    req.VideoId,
 		IsFavorite: 1, //1代表点赞，0代表无点赞
 		DelState:   0,
+		Ctime:      t,
 		Utime:      t,
 	}
 	// 需要事务
