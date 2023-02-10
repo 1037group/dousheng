@@ -7,6 +7,7 @@ type Message struct {
 	UserId         int64     `gorm:"column:user_id" db:"user_id" json:"user_id" form:"user_id"`
 	ToUserId       int64     `gorm:"column:to_user_id" db:"to_user_id" json:"to_user_id" form:"to_user_id"`
 	CommentContent string    `gorm:"column:message_content" db:"message_content" json:"message_content" form:"message_content"`
+	IsRead         int32     `gorm:"column:is_read" db:"is_read" json:"is_read" form:"is_read"`
 	Ctime          time.Time `gorm:"column:ctime" db:"ctime" json:"ctime" form:"ctime"`
 	Utime          time.Time `gorm:"column:utime" db:"utime" json:"utime" form:"utime"`
 }
@@ -19,5 +20,6 @@ const SQL_MESSAGE_COMMENT_ID = "message_id"
 const SQL_MESSAGE_USER_ID = "user_id"
 const SQL_MESSAGE_TO_USER_ID = "to_user_id"
 const SQL_MESSAGE_COMMENT_CONTENT = "comment_content"
+const SQL_MESSAGE_IS_READ = "is_read"
 const SQL_MESSAGE_CTIME = "ctime"
 const SQL_MESSAGE_UTIME = "utime"

@@ -10,7 +10,8 @@ func Message(m *sql.Message) *douyin_message.Message {
 	if m == nil {
 		return nil
 	}
-	time := m.Ctime.String()
+	time := m.Ctime.Unix()
+
 	return &douyin_message.Message{
 		Id:         m.MessageId,
 		ToUserId:   m.ToUserId,

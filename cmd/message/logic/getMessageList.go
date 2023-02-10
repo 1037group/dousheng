@@ -14,34 +14,27 @@ import (
 	"gorm.io/gorm"
 )
 
-func GetMessageActionLockKey(userId, ToUserId int64) string {
-	return fmt.Sprintf("FavoriteActionLock: %+v-%+v", userId, ToUserId)
+func GetMessageListLockKey(userId, ToUserId int64) string {
+	return fmt.Sprintf("GetMessageListLockKey: %+v-%+v", userId, ToUserId)
 }
 
-// 创建信息，使用事务
-func MessageAction(ctx context.Context, req *douyin_message.MessageActionRequest) (err error) {
-	klog.CtxInfof(ctx, "[logic.MessageAction] req: %+v", req)
+// 获取message列表，并更新其中的已读信息使用事务
+func GetMessageList(ctx context.Context, req *douyin_message.MessageChatRequest) ([]*sql.Message, error) {
+	klog.CtxInfof(ctx, "[logic.GetMessageList] req: %+v", req)
+	res, err := db.MGetMessageList(ctx, db.DB, &req.UserId, &req.ToUserId)
 	// Redis 加锁
 	key := GetMessageActionLockKey(req.UserId, req.ToUserId)
 	lock := redis.LockAcquire(ctx, key)
 	if lock == nil {
 		klog.CtxErrorf(ctx, errno.RedisLockFailed.ErrMsg)
-		return errno.RedisLockFailed
+		return res, errno.RedisLockFailed
 	}
 	defer lock.Release(ctx)
 	// 需要事务
-	t := time.Now()
-	message := sql.Message{
-		UserId:         req.UserId,
-		ToUserId:       req.ToUserId,
-		CommentContent: req.Content,
-		IsRead:         0,
-		Ctime:          t,
-		Utime:          t,
-	}
 
+	t := time.Now()
 	err = db.DB.Transaction(func(tx *gorm.DB) error {
-		err := db.SendMessage(ctx, &message)
+		err = db.MUpdateMessageList(ctx, tx, &req.UserId, &req.ToUserId, t)
 		if err != nil {
 			klog.CtxErrorf(ctx, err.Error())
 			return err
@@ -49,8 +42,8 @@ func MessageAction(ctx context.Context, req *douyin_message.MessageActionRequest
 		return err
 	})
 	if err != nil {
-		return err
+		return res, err
 	}
 
-	return nil
+	return res, nil
 }

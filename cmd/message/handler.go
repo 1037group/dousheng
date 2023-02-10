@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/1037group/dousheng/cmd/message/logic"
-	"github.com/1037group/dousheng/dal/db"
 	douyin_message "github.com/1037group/dousheng/kitex_gen/douyin_message"
 	"github.com/1037group/dousheng/pack"
 	"github.com/cloudwego/kitex/pkg/klog"
@@ -13,11 +12,12 @@ import (
 // MessageServiceImpl implements the last service interface defined in the IDL.
 type MessageServiceImpl struct{}
 
-// MessageChat implements the MessageServiceImpl interface.
+// MessageChat implements the MessageServiceImpl interface. Message功能应该仅在打开聊天框的时候被调用一次
 func (s *MessageServiceImpl) MessageChat(ctx context.Context, req *douyin_message.MessageChatRequest) (resp *douyin_message.MessageChatResponse, err error) {
 	klog.CtxInfof(ctx, "[MessageChat] %+v", req)
 
-	res, err := db.MGetMessageList(ctx, db.DB, &req.UserId, &req.ToUserId)
+	//使用事务更新消息读取情况
+	res, err := logic.GetMessageList(ctx, req)
 	if err != nil {
 		klog.CtxErrorf(ctx, err.Error())
 		return nil, err

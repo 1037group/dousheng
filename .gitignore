@@ -13,10 +13,7 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
-.history/cmd/favorite/
-.history/cmd/favorite/logic/
-.history/cmd/message/
-.history/cmd/message/logic/
+.history/
 cmd/api/api
 
 # IDE config

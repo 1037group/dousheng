@@ -11,7 +11,6 @@ import (
 
 func RelationFriendList(ctx context.Context, req *douyin_relation.RelationFriendListRequest) (users []*douyin_user.User, err error) {
 	klog.CtxInfof(ctx, "[logic.RelationFriendList] req: %+v", req)
-
 	relations, err := db.MGetFollowerList(ctx, db.DB, req.UserId)
 	if err != nil {
 		klog.CtxErrorf(ctx, err.Error())

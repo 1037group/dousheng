@@ -3,6 +3,7 @@ CREATE TABLE `message` (
                            `user_id` bigint NOT NULL,
                            `to_user_id` bigint NOT NULL,
                            `message_content` varchar(255) NOT NULL,
+                           `is_read` integer NOT NULL,
                            `ctime` datetime NOT NULL,
                            `utime` datetime NOT NULL,
                            PRIMARY KEY (`message_id`),
