@@ -54,3 +54,28 @@ func RelationFollowerListResponseRpc2Api(m *douyin_relation.RelationFollowerList
 		UserList:   userList,
 	}
 }
+
+func RelationFriendListResponseRpc2Api(m *douyin_relation.RelationFriendListResponse) *douyin_api.RelationFriendListResponse {
+	if m == nil {
+		return nil
+	}
+
+	userList := []*douyin_api.User{}
+
+	for _, user := range m.UserList {
+		one := douyin_api.User{
+			ID:            user.Id,
+			Name:          user.Name,
+			FollowCount:   user.FollowCount,
+			FollowerCount: user.FollowerCount,
+			IsFollow:      user.IsFollow,
+		}
+		userList = append(userList, &one)
+	}
+
+	return &douyin_api.RelationFriendListResponse{
+		StatusCode: 0,
+		StatusMsg:  m.StatusMsg,
+		UserList:   userList,
+	}
+}

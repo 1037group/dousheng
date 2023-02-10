@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+
 	"github.com/1037group/dousheng/cmd/relation/logic"
 	douyin_relation "github.com/1037group/dousheng/kitex_gen/douyin_relation"
 	"github.com/cloudwego/kitex/pkg/klog"
@@ -44,7 +45,17 @@ func (s *RelationServiceImpl) RelationFollowList(ctx context.Context, req *douyi
 // RelationFriendList implements the RelationServiceImpl interface.
 func (s *RelationServiceImpl) RelationFriendList(ctx context.Context, req *douyin_relation.RelationFriendListRequest) (resp *douyin_relation.RelationFriendListResponse, err error) {
 	// TODO: Your code here...
-	return
+	klog.CtxInfof(ctx, "[RelationFriendList] %+v", req)
+	userList, err := logic.RelationFriendList(ctx, req)
+	if err != nil {
+		klog.CtxErrorf(ctx, err.Error())
+		return nil, err
+	}
+	return &douyin_relation.RelationFriendListResponse{
+		StatusCode: 0,
+		StatusMsg:  nil,
+		UserList:   userList,
+	}, nil
 }
 
 // RelationFollowerList implements the RelationServiceImpl interface.

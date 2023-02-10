@@ -2,6 +2,7 @@ package rpc
 
 import (
 	"context"
+
 	"github.com/1037group/dousheng/kitex_gen/douyin_relation"
 	"github.com/1037group/dousheng/kitex_gen/douyin_relation/relationservice"
 	"github.com/1037group/dousheng/pkg/consts"
@@ -65,6 +66,17 @@ func RelationFollowList(ctx context.Context, req *douyin_relation.RelationFollow
 
 func RelationFollowerList(ctx context.Context, req *douyin_relation.RelationFollowerListRequest) (resp *douyin_relation.RelationFollowerListResponse, err error) {
 	resp, err = relationClient.RelationFollowerList(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode != 0 {
+		return nil, errno.NewErrNo(resp.StatusCode, *resp.StatusMsg)
+	}
+	return resp, nil
+}
+
+func RelationFriendList(ctx context.Context, req *douyin_relation.RelationFriendListRequest) (resp *douyin_relation.RelationFriendListResponse, err error) {
+	resp, err = relationClient.RelationFriendList(ctx, req)
 	if err != nil {
 		return nil, err
 	}

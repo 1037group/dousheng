@@ -14,7 +14,7 @@ const (
 
 	MySQLDefaultDSN = "gorm:gorm@tcp(localhost:3306)/gorm?charset=utf8&parseTime=True&loc=Local"
 	TCP             = "tcp"
-
+	//"172.31.192.1"
 	RedisIp         = "localhost"
 	RedisPort       = "6379"
 	RedisExpireTime = 600

@@ -11,7 +11,6 @@ func Video(m *sql.Video, n *douyin_user.User) *douyin_feed.Video {
 	if m == nil {
 		return nil
 	}
-
 	return &douyin_feed.Video{
 		Id:            m.VideoId,
 		Author:        n,

@@ -6,12 +6,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
+	"strconv"
+
 	"github.com/1037group/dousheng/cmd/api/biz/logic"
 	douyin_api "github.com/1037group/dousheng/cmd/api/biz/model/douyin_api"
 	"github.com/1037group/dousheng/cmd/api/biz/mw"
 	"github.com/1037group/dousheng/cmd/api/biz/rpc"
 	"github.com/1037group/dousheng/kitex_gen/douyin_comment"
+	"github.com/1037group/dousheng/kitex_gen/douyin_favorite"
 	"github.com/1037group/dousheng/kitex_gen/douyin_feed"
+	"github.com/1037group/dousheng/kitex_gen/douyin_message"
 	"github.com/1037group/dousheng/kitex_gen/douyin_publish"
 	"github.com/1037group/dousheng/kitex_gen/douyin_relation"
 	"github.com/1037group/dousheng/kitex_gen/douyin_user"
@@ -20,8 +25,6 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
-	"os"
-	"strconv"
 )
 
 // Feed .
@@ -263,6 +266,7 @@ func PublishList(ctx context.Context, c *app.RequestContext) {
 // FavoriteAction .
 // @router /douyin/favorite/action [POST]
 func FavoriteAction(ctx context.Context, c *app.RequestContext) {
+	hlog.CtxInfof(ctx, "[FavoriteAction] api is called.")
 	var err error
 	var req douyin_api.FavoriteActionRequest
 	err = c.BindAndValidate(&req)
@@ -270,8 +274,26 @@ func FavoriteAction(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
+	// parse userId from token
+	user, _ := c.Get(mw.JwtMiddleware.IdentityKey)
+	hlog.CtxInfof(ctx, "user: %+v", user)
+	userId := user.(*douyin_api.User).ID
+	hlog.CtxInfof(ctx, "userId: %+v", userId)
 
-	resp := new(douyin_api.FavoriteActionResponse)
+	rpcResp, err := rpc.FavoriteAction(ctx, &douyin_favorite.FavoriteActionRequest{
+		UserId:     userId,
+		VideoId:    req.VideoID,
+		ActionType: req.ActionType,
+	})
+	hlog.CtxInfof(ctx, "[FavoriteAction] api call rpc end. rpcResp: %+v", rpcResp)
+	if err != nil {
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
+	resp := douyin_api.FavoriteActionResponse{
+		StatusCode: rpcResp.StatusCode,
+		StatusMsg:  rpcResp.StatusMsg,
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -279,6 +301,7 @@ func FavoriteAction(ctx context.Context, c *app.RequestContext) {
 // FavoriteList .
 // @router douyin/favorite/list [GET]
 func FavoriteList(ctx context.Context, c *app.RequestContext) {
+	hlog.CtxInfof(ctx, "[FavoriteList] api is called.")
 	var err error
 	var req douyin_api.FavoriteListRequest
 	err = c.BindAndValidate(&req)
@@ -286,8 +309,15 @@ func FavoriteList(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
-
-	resp := new(douyin_api.FavoriteListResponse)
+	rpcResp, err := rpc.FavoriteList(ctx, &douyin_favorite.FavoriteListRequest{
+		UserId: req.UserID,
+	})
+	hlog.CtxInfof(ctx, "[FavoriteList] api call rpc end. rpcResp: %+v", rpcResp)
+	if err != nil {
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
+	resp := pack.FavoriteListResponseRpc2Api(rpcResp)
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -453,6 +483,8 @@ func RelationFollowList(ctx context.Context, c *app.RequestContext) {
 // RelationFriendList .
 // @router douyin/relation/friend/list [GET]
 func RelationFriendList(ctx context.Context, c *app.RequestContext) {
+	hlog.CtxInfof(ctx, "[RelationFriendList] api is called.")
+
 	var err error
 	var req douyin_api.RelationFriendListRequest
 	err = c.BindAndValidate(&req)
@@ -461,7 +493,30 @@ func RelationFriendList(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(douyin_api.RelationFriendListResponse)
+	// parse userId from token
+	reqUser, _ := c.Get(mw.JwtMiddleware.IdentityKey)
+	reqUserId := reqUser.(*douyin_api.User).ID
+	hlog.CtxInfof(ctx, "reqUserId: %+v", reqUserId)
+
+	// rpc
+	userId := req.UserID
+	if err != nil {
+		hlog.CtxErrorf(ctx, err.Error())
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+	rpcResp, err := rpc.RelationFriendList(ctx, &douyin_relation.RelationFriendListRequest{
+		UserId:    userId,
+		ReqUserId: reqUserId,
+	})
+	hlog.CtxInfof(ctx, "[RelationFriendList] api call rpc end. rpcResp: %+v", rpcResp)
+	if err != nil {
+		hlog.CtxErrorf(ctx, err.Error())
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
+
+	resp := pack.RelationFriendListResponseRpc2Api(rpcResp)
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -469,6 +524,8 @@ func RelationFriendList(ctx context.Context, c *app.RequestContext) {
 // MessageChat .
 // @router douyin/message/chat [GET]
 func MessageChat(ctx context.Context, c *app.RequestContext) {
+	hlog.CtxInfof(ctx, "[MessageChat] api is called.")
+
 	var err error
 	var req douyin_api.MessageChatRequest
 	err = c.BindAndValidate(&req)
@@ -477,7 +534,22 @@ func MessageChat(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(douyin_api.MessageChatResponse)
+	User, _ := c.Get(mw.JwtMiddleware.IdentityKey)
+	UserId := User.(*douyin_api.User).ID
+	hlog.CtxInfof(ctx, "userId: %+v", UserId)
+
+	rpcResp, err := rpc.MessageChat(ctx, &douyin_message.MessageChatRequest{
+		UserId:   UserId,
+		ToUserId: req.ToUserID,
+	})
+
+	hlog.CtxInfof(ctx, "[MessageChat] api call rpc end. rpcResp: %+v", rpcResp)
+	if err != nil {
+		hlog.CtxErrorf(ctx, err.Error())
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
+	resp := pack.MessageChatResponseRpc2Api(rpcResp)
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -485,6 +557,8 @@ func MessageChat(ctx context.Context, c *app.RequestContext) {
 // MessageAction .
 // @router douyin/message/action [POST]
 func MessageAction(ctx context.Context, c *app.RequestContext) {
+	hlog.CtxInfof(ctx, "[MessageAction] api is called.")
+
 	var err error
 	var req douyin_api.MessageActionRequest
 	err = c.BindAndValidate(&req)
@@ -492,8 +566,28 @@ func MessageAction(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
+	User, _ := c.Get(mw.JwtMiddleware.IdentityKey)
+	UserId := User.(*douyin_api.User).ID
+	hlog.CtxInfof(ctx, "userId: %+v", UserId)
 
-	resp := new(douyin_api.MessageActionResponse)
+	actionType := req.ActionType
+
+	rpcResp, err := rpc.MessageAction(ctx, &douyin_message.MessageActionRequest{
+		UserId:     UserId,
+		ToUserId:   req.ToUserID,
+		ActionType: int32(actionType),
+		Content:    req.Content,
+	})
+	hlog.CtxInfof(ctx, "[MessageAction] api call rpc end. rpcResp: %+v", rpcResp)
+	if err != nil {
+		hlog.CtxErrorf(ctx, err.Error())
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
+	resp := &douyin_api.MessageActionResponse{
+		StatusCode: rpcResp.StatusCode,
+		StatusMsg:  rpcResp.StatusMsg,
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }

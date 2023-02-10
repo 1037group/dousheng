@@ -41,7 +41,6 @@ services:
   # Collector TODO
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
-    platform: linux/arm64/v8 # Mac M1 enable, linux disable
     command: [ "--config=/etc/otel-collector-config.yaml", "${OTELCOL_ARGS}" ]
     volumes:
       - ./pkg/configs/otel/otel-collector-config.yaml:/etc/otel-collector-config.yaml
@@ -94,6 +93,31 @@ services:
       - GF_AUTH_DISABLE_LOGIN_FORM=true
     ports:
       - "3000:3000"
+  # Zookeeper TODO
+  zookeeper:
+    image: 'bitnami/zookeeper:latest'
+    ports:
+      - '2181:2181'
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    
+  # Kafka TODO
+  kafka:
+    image: 'bitnami/kafka:latest'
+    ports:
+      - '9092:9092'
+      - '9093:9093'
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_CFG_LISTENERS=CLIENT://:9092,EXTERNAL://:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://localhost:9092,EXTERNAL://localhost:9093 # 外网访问时，需要修改为外网主机的IP地址
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=CLIENT
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    depends_on:
+      - zookeeper
+
 
 #  #
 #  portainer:

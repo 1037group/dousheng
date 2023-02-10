@@ -2,11 +2,12 @@ package db
 
 import (
 	"context"
+	"time"
+
+	"github.com/1037group/dousheng/pkg/configs/sql"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"gorm.io/gorm"
-	"time"
 )
-import "github.com/1037group/dousheng/pkg/configs/sql"
 
 // MGetVideosByLastTime multiple get list of videos
 func MGetVideosByLastTime(ctx context.Context, tx *gorm.DB, last_time *int64) ([]*sql.Video, error) {
@@ -48,4 +49,18 @@ func MGetVideosByUserId(ctx context.Context, tx *gorm.DB, user_id *int64) ([]*sq
 func CreateVideo(ctx context.Context, tx *gorm.DB, video *sql.Video) error {
 	klog.CtxInfof(ctx, "[CreateVideo] video: %+v\n", video)
 	return tx.WithContext(ctx).Create(video).Error
+}
+
+func AddFavoriteCount(ctx context.Context, tx *gorm.DB, video_id int64) error {
+	klog.CtxInfof(ctx, "[db.AddFavoriteCount] video_id : %+v\n", video_id)
+
+	video := &sql.Video{VideoId: video_id}
+	return tx.Model(&video).UpdateColumn(sql.SQL_VIDEO_VIDEO_FAVORITE_COUNT, gorm.Expr(sql.SQL_VIDEO_VIDEO_FAVORITE_COUNT+" + ?", 1)).Error
+}
+
+func MinusFavoriteCount(ctx context.Context, tx *gorm.DB, video_id int64) error {
+	klog.CtxInfof(ctx, "[db.AddFavoriteCount] video_id : %+v\n", video_id)
+
+	video := &sql.Video{VideoId: video_id}
+	return tx.Model(&video).UpdateColumn(sql.SQL_VIDEO_VIDEO_FAVORITE_COUNT, gorm.Expr(sql.SQL_VIDEO_VIDEO_FAVORITE_COUNT+" - ?", 1)).Error
 }

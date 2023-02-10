@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"time"
+
 	"github.com/1037group/dousheng/dal/db"
 	douyin_publish "github.com/1037group/dousheng/kitex_gen/douyin_publish"
 	"github.com/1037group/dousheng/kitex_gen/douyin_user"
@@ -9,7 +11,6 @@ import (
 	"github.com/1037group/dousheng/pkg/configs/sql"
 	"github.com/1037group/dousheng/pkg/errno"
 	"github.com/cloudwego/kitex/pkg/klog"
-	"time"
 )
 
 // PublishServiceImpl implements the last service interface defined in the IDL.
@@ -83,7 +84,6 @@ func (s *PublishServiceImpl) PublishList(ctx context.Context, req *douyin_publis
 		}
 	}
 	videoList := pack.Videos(res, userMap)
-
 	return &douyin_publish.PublishListResponse{
 		StatusCode: 0,
 		StatusMsg:  nil,

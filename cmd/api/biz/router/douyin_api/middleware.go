@@ -47,12 +47,12 @@ func _comment_ctionMw() []app.HandlerFunc {
 
 func _favoriteMw() []app.HandlerFunc {
 	// your code...
-	return nil
+	return []app.HandlerFunc{mw.JwtMiddleware.MiddlewareFunc()}
 }
 
 func _favoritelistMw() []app.HandlerFunc {
 	// your code...
-	return nil
+	return []app.HandlerFunc{mw.JwtMiddleware.MiddlewareFunc()}
 }
 
 func _action0Mw() []app.HandlerFunc {
@@ -67,12 +67,12 @@ func _favorite_ctionMw() []app.HandlerFunc {
 
 func _messageMw() []app.HandlerFunc {
 	// your code...
-	return nil
+	return []app.HandlerFunc{mw.JwtMiddleware.MiddlewareFunc()}
 }
 
 func _messagechatMw() []app.HandlerFunc {
 	// your code...
-	return nil
+	return []app.HandlerFunc{mw.JwtMiddleware.MiddlewareFunc()}
 }
 
 func _action1Mw() []app.HandlerFunc {
@@ -128,12 +128,12 @@ func _relationfollowlistMw() []app.HandlerFunc {
 
 func _friendMw() []app.HandlerFunc {
 	// your code...
-	return nil
+	return []app.HandlerFunc{mw.JwtMiddleware.MiddlewareFunc()}
 }
 
 func _relationfriendlistMw() []app.HandlerFunc {
 	// your code...
-	return nil
+	return []app.HandlerFunc{mw.JwtMiddleware.MiddlewareFunc()}
 }
 
 func _userMw() []app.HandlerFunc {

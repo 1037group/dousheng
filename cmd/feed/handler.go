@@ -2,12 +2,14 @@ package main
 
 import (
 	"context"
+	"time"
+
 	"github.com/1037group/dousheng/dal/db"
 	douyin_feed "github.com/1037group/dousheng/kitex_gen/douyin_feed"
 	"github.com/1037group/dousheng/kitex_gen/douyin_user"
 	"github.com/1037group/dousheng/pack"
+	"github.com/1037group/dousheng/pkg/errno"
 	"github.com/cloudwego/kitex/pkg/klog"
-	"time"
 )
 
 // FeedServiceImpl implements the last service interface defined in the IDL.
@@ -27,8 +29,6 @@ func (s *FeedServiceImpl) Feed(ctx context.Context, req *douyin_feed.FeedRequest
 		klog.CtxErrorf(ctx, err.Error())
 		return nil, err
 	}
-	klog.CtxInfof(ctx, "res: %+v", res)
-
 	userMap := make(map[int64]douyin_user.User)
 	var userIDs []int64
 	for _, m := range res {
@@ -63,6 +63,22 @@ func (s *FeedServiceImpl) Feed(ctx context.Context, req *douyin_feed.FeedRequest
 	}
 
 	videoList := pack.Videos(res, userMap)
+	//需要查表验证该用户是否favorite了这些视频
+	for i, m := range videoList {
+		res, err := db.MIsFavoriteByUserId(ctx, db.DB, req.ReqUserId, &m.Id)
+		if err != nil {
+			klog.CtxErrorf(ctx, err.Error())
+			return nil, errno.ParamErr
+		}
+		klog.CtxInfof(ctx, "[res] %+v", res)
+		for _, n := range res {
+			if n.IsFavorite == 1 {
+				videoList[i].IsFavorite = true
+			} else {
+				videoList[i].IsFavorite = false
+			}
+		}
+	}
 
 	return &douyin_feed.FeedResponse{
 		StatusCode: 0,

@@ -6,4 +6,6 @@ func Init() {
 	initPublish()
 	initRelation()
 	initComment()
+	initFavorite()
+	initMessage()
 }
