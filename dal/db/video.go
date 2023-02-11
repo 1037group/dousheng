@@ -59,7 +59,7 @@ func AddFavoriteCount(ctx context.Context, tx *gorm.DB, video_id int64) error {
 }
 
 func MinusFavoriteCount(ctx context.Context, tx *gorm.DB, video_id int64) error {
-	klog.CtxInfof(ctx, "[db.AddFavoriteCount] video_id : %+v\n", video_id)
+	klog.CtxInfof(ctx, "[db.MinusFavoriteCount] video_id : %+v\n", video_id)
 
 	video := &sql.Video{VideoId: video_id}
 	return tx.Model(&video).UpdateColumn(sql.SQL_VIDEO_VIDEO_FAVORITE_COUNT, gorm.Expr(sql.SQL_VIDEO_VIDEO_FAVORITE_COUNT+" - ?", 1)).Error

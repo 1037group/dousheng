@@ -43,7 +43,7 @@ struct RelationFriendListRequest {
 struct RelationFriendListResponse {
     1: required i32 status_code
     2: optional string status_msg
-    3: list<user.User> user_list
+    3: list<user.FriendUser> user_list
 }
 
 service RelationService {

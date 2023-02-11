@@ -57,7 +57,7 @@ func CreateFavorite(ctx context.Context, favor *sql.Favorite) error {
 
 // 更新点赞信息
 func UpdateFavorite(ctx context.Context, tx *gorm.DB, user_id int64, video_id int64, utime time.Time, action_type int32) error {
-	klog.CtxInfof(ctx, "[CancelFavorite] user_id: %+v\n", user_id)
+	klog.CtxInfof(ctx, "[UpdateFavorite] user_id: %+v\n", user_id)
 
 	query := sql.SQL_FAVORITE_USER_ID + " = ?"
 	query1 := sql.SQL_FAVORITE_VIDEO_ID + " = ?"

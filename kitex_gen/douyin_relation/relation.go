@@ -1938,9 +1938,9 @@ func (p *RelationFriendListRequest) Field2DeepEqual(src int64) bool {
 }
 
 type RelationFriendListResponse struct {
-	StatusCode int32               `thrift:"status_code,1,required" frugal:"1,required,i32" json:"status_code"`
-	StatusMsg  *string             `thrift:"status_msg,2,optional" frugal:"2,optional,string" json:"status_msg,omitempty"`
-	UserList   []*douyin_user.User `thrift:"user_list,3" frugal:"3,default,list<douyin_user.User>" json:"user_list"`
+	StatusCode int32                     `thrift:"status_code,1,required" frugal:"1,required,i32" json:"status_code"`
+	StatusMsg  *string                   `thrift:"status_msg,2,optional" frugal:"2,optional,string" json:"status_msg,omitempty"`
+	UserList   []*douyin_user.FriendUser `thrift:"user_list,3" frugal:"3,default,list<douyin_user.FriendUser>" json:"user_list"`
 }
 
 func NewRelationFriendListResponse() *RelationFriendListResponse {
@@ -1964,7 +1964,7 @@ func (p *RelationFriendListResponse) GetStatusMsg() (v string) {
 	return *p.StatusMsg
 }
 
-func (p *RelationFriendListResponse) GetUserList() (v []*douyin_user.User) {
+func (p *RelationFriendListResponse) GetUserList() (v []*douyin_user.FriendUser) {
 	return p.UserList
 }
 func (p *RelationFriendListResponse) SetStatusCode(val int32) {
@@ -1973,7 +1973,7 @@ func (p *RelationFriendListResponse) SetStatusCode(val int32) {
 func (p *RelationFriendListResponse) SetStatusMsg(val *string) {
 	p.StatusMsg = val
 }
-func (p *RelationFriendListResponse) SetUserList(val []*douyin_user.User) {
+func (p *RelationFriendListResponse) SetUserList(val []*douyin_user.FriendUser) {
 	p.UserList = val
 }
 
@@ -2097,9 +2097,9 @@ func (p *RelationFriendListResponse) ReadField3(iprot thrift.TProtocol) error {
 	if err != nil {
 		return err
 	}
-	p.UserList = make([]*douyin_user.User, 0, size)
+	p.UserList = make([]*douyin_user.FriendUser, 0, size)
 	for i := 0; i < size; i++ {
-		_elem := douyin_user.NewUser()
+		_elem := douyin_user.NewFriendUser()
 		if err := _elem.Read(iprot); err != nil {
 			return err
 		}
@@ -2254,7 +2254,7 @@ func (p *RelationFriendListResponse) Field2DeepEqual(src *string) bool {
 	}
 	return true
 }
-func (p *RelationFriendListResponse) Field3DeepEqual(src []*douyin_user.User) bool {
+func (p *RelationFriendListResponse) Field3DeepEqual(src []*douyin_user.FriendUser) bool {
 
 	if len(p.UserList) != len(src) {
 		return false

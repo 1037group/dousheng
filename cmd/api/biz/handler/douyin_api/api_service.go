@@ -505,6 +505,7 @@ func RelationFriendList(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
+	hlog.CtxInfof(ctx, "[RelationFriendList][RelationFriendListRequest] req: %+v", req)
 	rpcResp, err := rpc.RelationFriendList(ctx, &douyin_relation.RelationFriendListRequest{
 		UserId:    userId,
 		ReqUserId: reqUserId,

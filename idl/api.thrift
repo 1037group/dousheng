@@ -86,6 +86,17 @@ struct User {
     5: required bool is_follow
 }
 
+struct FriendUser {
+    1: required i64 id
+    2: required string name
+    3: optional i64 follow_count
+    4: optional i64 follower_count
+    5: required bool is_follow
+    6: required string avatar
+    7: optional string message
+    8: required i64 msgType
+}
+
 /*
 *
 * publish
@@ -227,7 +238,7 @@ struct RelationFriendListRequest {
 struct RelationFriendListResponse {
     1: required i32 status_code
     2: optional string status_msg
-    3: list<User> user_list
+    3: list<FriendUser> user_list
 }
 
 /*

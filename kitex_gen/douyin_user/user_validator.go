@@ -47,3 +47,6 @@ func (p *UserResponse) IsValid() error {
 func (p *User) IsValid() error {
 	return nil
 }
+func (p *FriendUser) IsValid() error {
+	return nil
+}

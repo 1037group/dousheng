@@ -29,7 +29,6 @@ func CreateFavoriteAction(ctx context.Context, req *douyin_favorite.FavoriteActi
 		return errno.RedisLockFailed
 	}
 	defer lock.Release(ctx)
-
 	t := time.Now()
 	favorite := sql.Favorite{
 		UserId:     req.UserId,

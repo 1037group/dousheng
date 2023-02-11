@@ -60,15 +60,18 @@ func RelationFriendListResponseRpc2Api(m *douyin_relation.RelationFriendListResp
 		return nil
 	}
 
-	userList := []*douyin_api.User{}
+	userList := []*douyin_api.FriendUser{}
 
 	for _, user := range m.UserList {
-		one := douyin_api.User{
+		one := douyin_api.FriendUser{
 			ID:            user.Id,
 			Name:          user.Name,
 			FollowCount:   user.FollowCount,
 			FollowerCount: user.FollowerCount,
 			IsFollow:      user.IsFollow,
+			Avatar:        "",
+			Message:       user.Message,
+			MsgType:       user.MsgType,
 		}
 		userList = append(userList, &one)
 	}
