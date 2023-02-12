@@ -6,11 +6,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/1037group/dousheng/cmd/mykafka"
+	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"os"
 	"strconv"
 
 	"github.com/1037group/dousheng/cmd/api/biz/logic"
-	douyin_api "github.com/1037group/dousheng/cmd/api/biz/model/douyin_api"
+	"github.com/1037group/dousheng/cmd/api/biz/model/douyin_api"
 	"github.com/1037group/dousheng/cmd/api/biz/mw"
 	"github.com/1037group/dousheng/cmd/api/biz/rpc"
 	"github.com/1037group/dousheng/kitex_gen/douyin_comment"
@@ -21,6 +23,7 @@ import (
 	"github.com/1037group/dousheng/kitex_gen/douyin_relation"
 	"github.com/1037group/dousheng/kitex_gen/douyin_user"
 	"github.com/1037group/dousheng/pack"
+	localconsts "github.com/1037group/dousheng/pkg/consts"
 	"github.com/1037group/dousheng/pkg/errno"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
@@ -47,7 +50,7 @@ func Feed(ctx context.Context, c *app.RequestContext) {
 			Code int32 `json:"code"`
 		}
 		var jwtUnauthorized JwtUnauthorized
-		json.Unmarshal(c.Response.Body(), &jwtUnauthorized)
+		_ = json.Unmarshal(c.Response.Body(), &jwtUnauthorized)
 
 		if jwtUnauthorized.Code == errno.AuthorizationFailedErr.ErrCode {
 			hlog.CtxErrorf(ctx, errno.AuthorizationFailedErr.ErrMsg)
@@ -271,6 +274,7 @@ func FavoriteAction(ctx context.Context, c *app.RequestContext) {
 	var req douyin_api.FavoriteActionRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
+		hlog.CtxErrorf(ctx, err.Error())
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
@@ -280,19 +284,41 @@ func FavoriteAction(ctx context.Context, c *app.RequestContext) {
 	userId := user.(*douyin_api.User).ID
 	hlog.CtxInfof(ctx, "userId: %+v", userId)
 
-	rpcResp, err := rpc.FavoriteAction(ctx, &douyin_favorite.FavoriteActionRequest{
+	rpcReq := &douyin_favorite.FavoriteActionRequest{
 		UserId:     userId,
 		VideoId:    req.VideoID,
 		ActionType: req.ActionType,
-	})
-	hlog.CtxInfof(ctx, "[FavoriteAction] api call rpc end. rpcResp: %+v", rpcResp)
+	}
+	//rpcResp, err := rpc.FavoriteAction(ctx, rpcReq)
+
+	jsonRpcReq, err := json.Marshal(rpcReq)
+	if err != nil {
+		hlog.CtxErrorf(ctx, err.Error())
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	// 发送至消息队列
+	// Produce messages to topic (asynchronously)
+	topic := localconsts.TopicFavoriteAction
+	err = mykafka.KafukaProducerProducer.Produce(&kafka.Message{
+		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
+		Value:          jsonRpcReq,
+	}, nil)
+	if err != nil {
+		hlog.CtxErrorf(ctx, err.Error())
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
+
+	hlog.CtxInfof(ctx, "[FavoriteAction] api call mykafka end.")
 	if err != nil {
 		c.String(consts.StatusInternalServerError, err.Error())
 		return
 	}
 	resp := douyin_api.FavoriteActionResponse{
-		StatusCode: rpcResp.StatusCode,
-		StatusMsg:  rpcResp.StatusMsg,
+		StatusCode: 0,
+		StatusMsg:  nil,
 	}
 
 	c.JSON(consts.StatusOK, resp)
@@ -534,12 +560,12 @@ func MessageChat(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	User, _ := c.Get(mw.JwtMiddleware.IdentityKey)
-	UserId := User.(*douyin_api.User).ID
-	hlog.CtxInfof(ctx, "userId: %+v", UserId)
+	user, _ := c.Get(mw.JwtMiddleware.IdentityKey)
+	userId := user.(*douyin_api.User).ID
+	hlog.CtxInfof(ctx, "userId: %+v", userId)
 
 	rpcResp, err := rpc.MessageChat(ctx, &douyin_message.MessageChatRequest{
-		UserId:   UserId,
+		UserId:   userId,
 		ToUserId: req.ToUserID,
 	})
 
@@ -575,7 +601,7 @@ func MessageAction(ctx context.Context, c *app.RequestContext) {
 	rpcResp, err := rpc.MessageAction(ctx, &douyin_message.MessageActionRequest{
 		UserId:     UserId,
 		ToUserId:   req.ToUserID,
-		ActionType: int32(actionType),
+		ActionType: actionType,
 		Content:    req.Content,
 	})
 	hlog.CtxInfof(ctx, "[MessageAction] api call rpc end. rpcResp: %+v", rpcResp)

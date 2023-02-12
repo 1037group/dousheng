@@ -21,6 +21,9 @@ func Init() {
 	klog.SetLogger(kitexlogrus.NewLogger())
 	klog.SetLevel(klog.LevelInfo)
 	dal.Init()
+
+	// 开启定时任务
+	//go redis.ExecuteVideoCron(context.Background())
 }
 
 func main() {
@@ -48,8 +51,10 @@ func main() {
 		server.WithSuite(tracing.NewServerSuite()),
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: consts.FavoriteServiceName}),
 	)
+
 	err = svr.Run()
 	if err != nil {
 		klog.Fatal(err)
 	}
+
 }

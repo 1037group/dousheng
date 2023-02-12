@@ -30,4 +30,12 @@ const (
 	ExportEndpoint = ":4317"
 	ETCDAddress    = "127.0.0.1:2379"
 	DefaultLimit   = 10
+
+	// cronjob
+	Scep = ""
+
+	// mykafka
+	KafkaHost = "192.168.68.72:19004" // 配置为
+
+	TopicFavoriteAction = "TopicFavoriteAction"
 )

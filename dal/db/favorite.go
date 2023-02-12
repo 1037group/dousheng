@@ -50,9 +50,9 @@ func MGetFavoriteVideosByUserId(ctx context.Context, tx *gorm.DB, user_id *int64
 }
 
 // 给某个用户创建一条点赞信息
-func CreateFavorite(ctx context.Context, favor *sql.Favorite) error {
+func CreateFavorite(ctx context.Context, tx *gorm.DB, favor *sql.Favorite) error {
 	klog.CtxInfof(ctx, "[CreateFavorite] favor: %+v\n", favor)
-	return DB.WithContext(ctx).Create(favor).Error
+	return tx.WithContext(ctx).Create(favor).Error
 }
 
 // 更新点赞信息

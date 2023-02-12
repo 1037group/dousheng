@@ -30,4 +30,7 @@ go_build:
         		echo "go build in $$subdir\n";\
         		cd $$subdir && go build && cd ../..;\
 		done
-	cd ./cmd/api && go build
+	cd ./cmd/api && go build && cd ../..
+
+	echo
+	cd ./cmd/mykafka/consumers && go build

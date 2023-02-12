@@ -17,7 +17,6 @@ type FavoriteServiceImpl struct{}
 
 // FavoriteAction implements the FavoriteServiceImpl interface.
 func (s *FavoriteServiceImpl) FavoriteAction(ctx context.Context, req *douyin_favorite.FavoriteActionRequest) (resp *douyin_favorite.FavoriteActionResponse, err error) {
-	// TODO: Your code here...
 	klog.CtxInfof(ctx, "[FavoriteAction] %+v", req)
 
 	//做一次gorm查询目前这个视频有没有被这个人点赞,然后再执行操作
@@ -75,7 +74,6 @@ func (s *FavoriteServiceImpl) FavoriteAction(ctx context.Context, req *douyin_fa
 
 // FavoriteList implements the FavoriteServiceImpl interface.
 func (s *FavoriteServiceImpl) FavoriteList(ctx context.Context, req *douyin_favorite.FavoriteListRequest) (resp *douyin_favorite.FavoriteListResponse, err error) {
-	// TODO: Your code here...
 	klog.CtxInfof(ctx, "[FavoriteList] %+v", req)
 
 	//首先查favorite表，根据点赞的UserId获取对应的Favorite表

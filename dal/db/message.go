@@ -9,9 +9,9 @@ import (
 	"gorm.io/gorm"
 )
 
-func SendMessage(ctx context.Context, message *sql.Message) error {
+func SendMessage(ctx context.Context, tx *gorm.DB, message *sql.Message) error {
 	klog.CtxInfof(ctx, "[SendMessage] message: %+v\n", message)
-	return DB.WithContext(ctx).Create(message).Error
+	return tx.WithContext(ctx).Create(message).Error
 }
 
 func MGetMessageList(ctx context.Context, tx *gorm.DB, user_id *int64, to_user_id *int64) ([]*sql.Message, error) {
@@ -21,9 +21,9 @@ func MGetMessageList(ctx context.Context, tx *gorm.DB, user_id *int64, to_user_i
 	query_to_user_id := sql.SQL_MESSAGE_TO_USER_ID + " = ?"
 	queryAppend_is_read := sql.SQL_MESSAGE_IS_READ + " = ?"
 	if err := tx.WithContext(ctx).Order(sql.SQL_MESSAGE_UTIME+" desc").Where(query_user_id, user_id).Where(query_to_user_id, to_user_id).Where(queryAppend_is_read, 0).Find(&res).Error; err != nil {
-		klog.CtxInfof(ctx, "[MGetMessageList] res: %+v\n", res)
 		return res, err
 	}
+	klog.CtxInfof(ctx, "[MGetMessageList] res: %+v\n", res)
 	return res, nil
 }
 

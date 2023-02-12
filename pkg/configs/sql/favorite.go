@@ -8,7 +8,7 @@ type Favorite struct {
 	UserId     int64     `gorm:"column:user_id" db:"user_id" json:"user_id" form:"user_id"`
 	IsFavorite int32     `gorm:"column:isfavorite" db:"isfavorite" json:"isfavorite" form:"isfavorite"`
 	DelState   int32     `gorm:"column:delstate" db:"delstate" json:"delstate" form:"delstate"`
-	Ctime      time.Time `gorm:"column:utime" db:"ctime" json:"ctime" form:"ctime"`
+	Ctime      time.Time `gorm:"column:ctime" db:"ctime" json:"ctime" form:"ctime"`
 	Utime      time.Time `gorm:"column:utime" db:"utime" json:"utime" form:"utime"`
 }
 
