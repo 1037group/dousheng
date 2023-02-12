@@ -32,5 +32,4 @@ go_build:
 		done
 	cd ./cmd/api && go build && cd ../..
 
-	echo
 	cd ./cmd/mykafka/consumers && go build

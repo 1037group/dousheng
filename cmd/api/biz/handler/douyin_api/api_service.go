@@ -289,7 +289,6 @@ func FavoriteAction(ctx context.Context, c *app.RequestContext) {
 		VideoId:    req.VideoID,
 		ActionType: req.ActionType,
 	}
-	//rpcResp, err := rpc.FavoriteAction(ctx, rpcReq)
 
 	jsonRpcReq, err := json.Marshal(rpcReq)
 	if err != nil {

@@ -13,8 +13,8 @@ import (
 
 const (
 	//涉及到count的模型
-	VIDEO    = "video"
-	FAVORITE = "favorite"
+	ModelNameVideo    = "video"
+	ModelNameFavorite = "favorite"
 
 	//count相关的字段
 	VideoFavoriteCount = sql.SQL_VIDEO_VIDEO_FAVORITE_COUNT
@@ -33,7 +33,7 @@ var (
 	//hash字典域名模板，eg：1001-VideoFavoriteCount
 	hashFieldPattern = "%d-%s"
 	//redis hash key分片数（避免大key）
-	KeySliceSize = 16
+	KeySliceSize = 8
 )
 
 func GetKeyName(modelName string, modelId int64, fieldName string) string {
@@ -48,7 +48,7 @@ func GetHashFieldName(modelId int64, fieldName string) string {
 	return fmt.Sprintf(hashFieldPattern, modelId, fieldName)
 }
 
-func updateCachedCount(ctx context.Context, modelName, fieldName string, modelId int64, operatorType int) (int64, error) {
+func UpdateCachedCount(ctx context.Context, modelName, fieldName string, modelId int64, operatorType int) (int64, error) {
 	var key = GetKeyName(modelName, modelId, fieldName)
 	var resultCount int64
 	var err error
@@ -99,6 +99,7 @@ func ScanChangedCountAndUpdateDB(ctx context.Context, modelName string) {
 				klog.Errorf("HScan Error：%q", err)
 				break
 			}
+			klog.CtxInfof(ctx, "fields: %+v, modelName: %+v, hashKey: %+v.", fields, modelName, hashKey)
 			HandleScannedData(ctx, fields, modelName, hashKey)
 			if cursor == 0 {
 				break
@@ -146,21 +147,19 @@ func HandleScannedData(ctx context.Context, fields []string, modelName string, h
 func updateDB(ctx context.Context, modelName string, id int64, param map[string]interface{}) error {
 	var err error
 	switch modelName {
-	case VIDEO:
+	case ModelNameVideo:
+		klog.CtxInfof(ctx, "---------UpdateFavoriteCount---------, %+v", id)
 		err = db.UpdateFavoriteCount(ctx, db.DB, id, param)
 	}
 	return err
 }
 
-//func CheckRedisExist(ctx context.Context, key string, redisValue interface{}, dbValue int) int {
-//	var count int
-//	//如果缓存中没有，将数据库中的值set到缓存
-//	if redisValue == nil {
-//		_, _ = SetStrNxCacheTtl(ctx, key, dbValue, 0)
-//		count = dbValue
-//	} else {
-//		c, _ := strconv.Atoi(redisValue.(string))
-//		count = c
-//	}
-//	return count
-//}
+func Get(ctx context.Context, hashKey string, hashFieldName string) (string, error) {
+	klog.CtxInfof(ctx, "[GetByKeyName] hashKey: %+v, hashFieldName: %+v", hashKey, hashFieldName)
+	return rdb.HGet(ctx, hashKey, hashFieldName).Result()
+}
+
+func Set(ctx context.Context, hashKey string, hashFieldName string, value string) (int64, error) {
+	klog.CtxInfof(ctx, "[SetByKeyName] hashKey: %+v, hashFieldName: %+v, value: %+v", hashKey, hashFieldName, value)
+	return rdb.HSet(ctx, hashKey, hashFieldName, value).Result()
+}

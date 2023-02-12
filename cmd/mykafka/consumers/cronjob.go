@@ -1,7 +1,8 @@
-package redis
+package main
 
 import (
 	"context"
+	"github.com/1037group/dousheng/dal/redis"
 	"github.com/1037group/dousheng/pkg/consts"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/robfig/cron/v3"
@@ -17,7 +18,7 @@ func newWithSeconds() *cron.Cron {
 func ExecuteVideoCron(ctx context.Context) {
 
 	c := newWithSeconds()
-	//定时任务：如果没有配置，默认每小时执行一次
+	//定时任务：如果没有配置，默认每分钟执行一次
 	spec := consts.Scep
 	if spec == "" {
 		spec = "@every 1m"
@@ -25,11 +26,12 @@ func ExecuteVideoCron(ctx context.Context) {
 	var e error
 	// VIDEO相关
 	_, e = c.AddFunc(spec, func() {
-		ScanChangedCountAndUpdateDB(ctx, VIDEO)
+		redis.ScanChangedCountAndUpdateDB(ctx, redis.ModelNameVideo)
 	})
 	if e != nil {
 		klog.Error(e)
 	}
 
 	c.Start()
+	klog.CtxInfof(ctx, "CronJob Started.")
 }

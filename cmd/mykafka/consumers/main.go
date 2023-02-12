@@ -1,10 +1,25 @@
 package main
 
-import "context"
+import (
+	"context"
+	"github.com/1037group/dousheng/cmd/api/biz/rpc"
+	"github.com/1037group/dousheng/dal/db"
+	"github.com/1037group/dousheng/dal/redis"
+)
+
+func Init() {
+	db.Init()
+	redis.Init()
+	rpc.Init()
+}
 
 func main() {
+	Init()
 	ctx := context.Background()
+
 	go GetFavoriteActionConsumer(ctx)
+
+	ExecuteVideoCron(ctx)
 
 	run := true
 

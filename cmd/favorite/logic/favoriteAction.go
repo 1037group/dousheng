@@ -30,11 +30,11 @@ func CreateFavoriteAction(ctx context.Context, req *douyin_favorite.FavoriteActi
 		if err != nil {
 			return err
 		}
-
-		err = db.AddFavoriteCount(ctx, tx, req.VideoId)
-		if err != nil {
-			return err
-		}
+		// count的计数放在redis由cronjob异步更新
+		//err = db.AddFavoriteCount(ctx, tx, req.VideoId)
+		//if err != nil {
+		//	return err
+		//}
 		return err
 	})
 	if err != nil {
@@ -53,17 +53,18 @@ func FavoriteAction(ctx context.Context, req *douyin_favorite.FavoriteActionRequ
 	t := time.Now()
 	err = db.DB.Transaction(func(tx *gorm.DB) error {
 		err = db.UpdateFavorite(ctx, tx, req.UserId, req.VideoId, t, req.ActionType)
-		if req.ActionType == 1 {
-			err = db.AddFavoriteCount(ctx, tx, req.VideoId)
-			if err != nil {
-				return err
-			}
-		} else {
-			err = db.MinusFavoriteCount(ctx, tx, req.VideoId)
-			if err != nil {
-				return err
-			}
-		}
+		// redis处理点赞计数
+		//if req.ActionType == 1 {
+		//	err = db.AddFavoriteCount(ctx, tx, req.VideoId)
+		//	if err != nil {
+		//		return err
+		//	}
+		//} else {
+		//	err = db.MinusFavoriteCount(ctx, tx, req.VideoId)
+		//	if err != nil {
+		//		return err
+		//	}
+		//}
 		return err
 	})
 	if err != nil {

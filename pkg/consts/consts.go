@@ -35,7 +35,7 @@ const (
 	Scep = ""
 
 	// mykafka
-	KafkaHost = "192.168.68.72:19004" // 配置为
+	KafkaHost = "localhost:9092" // 配置为
 
-	TopicFavoriteAction = "TopicFavoriteAction"
+	TopicFavoriteAction = "topic_favorite_action"
 )
