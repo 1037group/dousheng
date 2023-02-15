@@ -12,10 +12,10 @@ const (
 	RelationServiceName = "relation_service"
 	UserServiceName     = "user_service"
 
-	MySQLDefaultDSN = "gorm:gorm@tcp(localhost:3306)/gorm?charset=utf8&parseTime=True&loc=Local"
+	MySQLDefaultDSN = "gorm:gorm@tcp(172.31.192.1:3306)/gorm?charset=utf8&parseTime=True&loc=Local"
 	TCP             = "tcp"
 	//"172.31.192.1"
-	RedisIp         = "localhost"
+	RedisIp         = "172.31.192.1"
 	RedisPort       = "6379"
 	RedisExpireTime = 600
 
@@ -35,7 +35,9 @@ const (
 	Scep = ""
 
 	// mykafka
-	KafkaHost = "localhost:9092" // 配置为
+	KafkaHost = "172.31.192.1:9092" // 配置为
 
 	TopicFavoriteAction = "topic_favorite_action"
+	TopicCommentAction  = "topic_comment_action"
+	TopicRelationAction = "topic_relation_action"
 )

@@ -6,10 +6,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/1037group/dousheng/cmd/mykafka"
-	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"os"
 	"strconv"
+
+	"github.com/1037group/dousheng/cmd/mykafka"
+	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 
 	"github.com/1037group/dousheng/cmd/api/biz/logic"
 	"github.com/1037group/dousheng/cmd/api/biz/model/douyin_api"
@@ -362,21 +363,55 @@ func CommentAction(ctx context.Context, c *app.RequestContext) {
 	reqUserId := reqUser.(*douyin_api.User).ID
 	hlog.CtxInfof(ctx, "reqUserId: %+v", reqUserId)
 
-	rpcResp, err := rpc.CommentAction(ctx, &douyin_comment.CommentActionRequest{
+	//rpc调用
+	// rpcResp, err := rpc.CommentAction(ctx, &douyin_comment.CommentActionRequest{
+	// 	UserId:      reqUserId,
+	// 	VideoId:     req.VideoID,
+	// 	ActionType:  req.ActionType,
+	// 	CommentText: req.CommentText,
+	// 	CommentId:   req.CommentID,
+	// })
+	rpcReq := &douyin_comment.CommentActionRequest{
 		UserId:      reqUserId,
 		VideoId:     req.VideoID,
 		ActionType:  req.ActionType,
 		CommentText: req.CommentText,
 		CommentId:   req.CommentID,
-	})
-	hlog.CtxInfof(ctx, "[CommentAction] api call rpc end. rpcResp: %+v", rpcResp)
+	}
+
+	jsonRpcReq, err := json.Marshal(rpcReq)
 	if err != nil {
+		hlog.CtxErrorf(ctx, err.Error())
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	// Produce messages to topic (asynchronously)
+	topic := localconsts.TopicCommentAction
+	err = mykafka.KafukaProducerProducer.Produce(&kafka.Message{
+		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
+		Value:          jsonRpcReq,
+	}, nil)
+	if err != nil {
+		hlog.CtxErrorf(ctx, err.Error())
 		c.String(consts.StatusInternalServerError, err.Error())
 		return
 	}
 
-	resp := pack.CommentActionResponseRpc2Api(rpcResp)
+	hlog.CtxInfof(ctx, "[CommentAction] api call mykafka end.")
 
+	rpcResp, err := rpc.CommentAction(ctx, rpcReq)
+	if err != nil {
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
+	hlog.CtxInfof(ctx, "[CommentAction] rpc call end.")
+	resp := pack.CommentActionResponseRpc2Api(rpcResp)
+	// resp := douyin_api.CommentActionResponse{
+	// 	StatusCode: 0,
+	// 	StatusMsg:  nil,
+	// 	Comment:    nil,
+	// }
 	c.JSON(consts.StatusOK, resp)
 }
 
@@ -441,24 +476,53 @@ func RelationAction(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
-
-	// rpc
-	rpcResp, err := rpc.RelationAction(ctx, &douyin_relation.RelationActionRequest{
+	//不做rpc调用，而是先把请求打包，并转为json串再发送给消息队列
+	rpcReq := &douyin_relation.RelationActionRequest{
 		ReqUserId:  reqUserId,
 		ToUserId:   toUserId,
 		ActionType: int32(actionType),
-	})
-	hlog.CtxInfof(ctx, "[RelationAction] api call rpc end. rpcResp: %+v", rpcResp)
+	}
+
+	jsonRpcReq, err := json.Marshal(rpcReq)
+	if err != nil {
+		hlog.CtxErrorf(ctx, err.Error())
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+	// 发送至消息队列
+	topic := localconsts.TopicRelationAction
+	err = mykafka.KafukaProducerProducer.Produce(&kafka.Message{
+		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
+		Value:          jsonRpcReq,
+	}, nil)
 	if err != nil {
 		hlog.CtxErrorf(ctx, err.Error())
 		c.String(consts.StatusInternalServerError, err.Error())
 		return
 	}
 
+	hlog.CtxInfof(ctx, "[RelationAction] api call mykafka end.")
+	//rpc调用
+	rpcResp, err := rpc.RelationAction(ctx, &douyin_relation.RelationActionRequest{
+		ReqUserId:  reqUserId,
+		ToUserId:   toUserId,
+		ActionType: int32(actionType),
+	})
+	if err != nil {
+		hlog.CtxErrorf(ctx, err.Error())
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
+	hlog.CtxInfof(ctx, "[RelationAction] rpc call end.")
 	resp := &douyin_api.RelationActionResponse{
 		StatusCode: rpcResp.StatusCode,
 		StatusMsg:  rpcResp.StatusMsg,
 	}
+
+	// resp := &douyin_api.RelationActionResponse{
+	// 	StatusCode: 0,
+	// 	StatusMsg:  nil,
+	// }
 
 	c.JSON(consts.StatusOK, resp)
 }

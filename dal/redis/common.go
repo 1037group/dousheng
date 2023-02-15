@@ -3,22 +3,31 @@ package redis
 import (
 	"context"
 	"fmt"
-	"github.com/1037group/dousheng/dal/db"
-	"github.com/1037group/dousheng/pkg/configs/sql"
-	"github.com/cloudwego/kitex/pkg/klog"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/1037group/dousheng/dal/db"
+	"github.com/1037group/dousheng/pkg/configs/sql"
+	"github.com/cloudwego/kitex/pkg/klog"
 )
 
 const (
 	//涉及到count的模型
 	ModelNameVideo    = "video"
 	ModelNameFavorite = "favorite"
+	ModelNameUser     = "user"
+	ModelNameRelation = "relation"
 
 	//count相关的字段
 	VideoFavoriteCount = sql.SQL_VIDEO_VIDEO_FAVORITE_COUNT
 	VideoCommentCount  = sql.SQL_VIDEO_VIDEO_COMMENT_COUNT
+	UserFollowCount    = sql.SQL_USER_USER_FOLLOW_COUNT
+	UserFollowerCount  = sql.SQL_USER_USER_FOLLOWER_COUNT
+
+	//涉及到string的类型和其相关字段
+	ModelNameComment = "comment"
+	CommentContent   = sql.SQL_COMMENT_COMMENT_CONTENT
 
 	//操作类型
 	Add = 1  //加
@@ -148,8 +157,11 @@ func updateDB(ctx context.Context, modelName string, id int64, param map[string]
 	var err error
 	switch modelName {
 	case ModelNameVideo:
-		klog.CtxInfof(ctx, "---------UpdateFavoriteCount---------, %+v", id)
+		klog.CtxInfof(ctx, "---------UpdateFavoriteCount---------, %+v,%+v", id, param)
 		err = db.UpdateFavoriteCount(ctx, db.DB, id, param)
+	case ModelNameUser:
+		klog.CtxInfof(ctx, "---------UpdateFollow(er)Count---------, %+v,%+v", id, param)
+		err = db.UpdateFollowCount(ctx, db.DB, id, param)
 	}
 	return err
 }

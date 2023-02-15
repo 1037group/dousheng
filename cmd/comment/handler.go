@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"time"
+
 	"github.com/1037group/dousheng/dal/db"
 	douyin_comment "github.com/1037group/dousheng/kitex_gen/douyin_comment"
 	"github.com/1037group/dousheng/kitex_gen/douyin_user"
@@ -9,7 +11,6 @@ import (
 	"github.com/1037group/dousheng/pkg/configs/sql"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"gorm.io/gorm"
-	"time"
 )
 
 // CommentServiceImpl implements the last service interface defined in the IDL.
@@ -43,11 +44,11 @@ func (s *CommentServiceImpl) CommentAction(ctx context.Context, req *douyin_comm
 			if err != nil {
 				return err
 			}
-
-			err = db.AddCommentCount(ctx, tx, req.VideoId)
-			if err != nil {
-				return err
-			}
+			//使用redis
+			// err = db.AddCommentCount(ctx, tx, req.VideoId)
+			// if err != nil {
+			// 	return err
+			// }
 
 			return nil
 		})
@@ -78,11 +79,11 @@ func (s *CommentServiceImpl) CommentAction(ctx context.Context, req *douyin_comm
 			if err != nil {
 				return err
 			}
-
-			err = db.MinusCommentCount(ctx, tx, req.VideoId)
-			if err != nil {
-				return err
-			}
+			//使用redis
+			// err = db.MinusCommentCount(ctx, tx, req.VideoId)
+			// if err != nil {
+			// 	return err
+			// }
 
 			return nil
 		})

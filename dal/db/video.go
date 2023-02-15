@@ -100,3 +100,11 @@ func UpdateCommentCount(ctx context.Context, tx *gorm.DB, video_id int64, param 
 	video := &sql.Video{VideoId: video_id}
 	return tx.Model(&video).Updates(param).Error
 }
+
+func GetCommentCount(ctx context.Context, tx *gorm.DB, video_id int64) (int64, error) {
+	klog.CtxInfof(ctx, "[db.GetCommentCount] video_id : %+v\n", video_id)
+
+	video := &sql.Video{VideoId: video_id}
+	res := tx.First(&video)
+	return video.VideoCommentCount, res.Error
+}

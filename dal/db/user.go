@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+
 	"github.com/1037group/dousheng/pkg/configs/sql"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"gorm.io/gorm"
@@ -85,4 +86,34 @@ func MinusFollowerCount(ctx context.Context, tx *gorm.DB, userId int64) error {
 
 	user := &sql.User{UserId: userId}
 	return tx.Model(&user).UpdateColumn(sql.SQL_USER_USER_FOLLOWER_COUNT, gorm.Expr(sql.SQL_USER_USER_FOLLOWER_COUNT+" - ?", 1)).Error
+}
+
+func GetFollowCount(ctx context.Context, tx *gorm.DB, userId int64) (int64, error) {
+	klog.CtxInfof(ctx, "[db.GetFollowCount] userId : %+v\n", userId)
+
+	user := &sql.User{UserId: userId}
+	res := tx.First(&user)
+	return user.UserFollowCount, res.Error
+}
+
+func GetFollowerCount(ctx context.Context, tx *gorm.DB, userId int64) (int64, error) {
+	klog.CtxInfof(ctx, "[db.GetFollowerCount] userId : %+v\n", userId)
+
+	user := &sql.User{UserId: userId}
+	res := tx.First(&user)
+	return user.UserFollowerCount, res.Error
+}
+
+func UpdateFollowCount(ctx context.Context, tx *gorm.DB, userId int64, param map[string]interface{}) error {
+	klog.CtxInfof(ctx, "[db.UpdateFollowCount] userId : %+v\n", userId)
+
+	user := &sql.User{UserId: userId}
+	return tx.Model(&user).Updates(param).Error
+}
+
+func UpdateFollowerCount(ctx context.Context, tx *gorm.DB, userId int64, param map[string]interface{}) error {
+	klog.CtxInfof(ctx, "[db.UpdateFollowerCount] userId : %+v\n", userId)
+
+	user := &sql.User{UserId: userId}
+	return tx.Model(&user).Updates(param).Error
 }

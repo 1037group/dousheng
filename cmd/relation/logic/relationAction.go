@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"fmt"
+
 	"github.com/1037group/dousheng/dal/db"
 	"github.com/1037group/dousheng/dal/redis"
 	"github.com/1037group/dousheng/kitex_gen/douyin_relation"
@@ -36,29 +37,30 @@ func RelationAction(ctx context.Context, req *douyin_relation.RelationActionRequ
 			klog.CtxErrorf(ctx, err.Error())
 			return err
 		}
-		if req.ActionType == 1 {
-			err = db.AddFollowerCount(ctx, tx, req.ToUserId)
-			if err != nil {
-				klog.CtxErrorf(ctx, err.Error())
-				return err
-			}
-			err = db.AddFollowCount(ctx, tx, req.ReqUserId)
-			if err != nil {
-				klog.CtxErrorf(ctx, err.Error())
-				return err
-			}
-		} else {
-			err = db.MinusFollowerCount(ctx, tx, req.ToUserId)
-			if err != nil {
-				klog.CtxErrorf(ctx, err.Error())
-				return err
-			}
-			err = db.MinusFollowCount(ctx, tx, req.ReqUserId)
-			if err != nil {
-				klog.CtxErrorf(ctx, err.Error())
-				return err
-			}
-		}
+		// 由redis来处理
+		// if req.ActionType == 1 {
+		// 	err = db.AddFollowerCount(ctx, tx, req.ToUserId)
+		// 	if err != nil {
+		// 		klog.CtxErrorf(ctx, err.Error())
+		// 		return err
+		// 	}
+		// 	err = db.AddFollowCount(ctx, tx, req.ReqUserId)
+		// 	if err != nil {
+		// 		klog.CtxErrorf(ctx, err.Error())
+		// 		return err
+		// 	}
+		// } else {
+		// 	err = db.MinusFollowerCount(ctx, tx, req.ToUserId)
+		// 	if err != nil {
+		// 		klog.CtxErrorf(ctx, err.Error())
+		// 		return err
+		// 	}
+		// 	err = db.MinusFollowCount(ctx, tx, req.ReqUserId)
+		// 	if err != nil {
+		// 		klog.CtxErrorf(ctx, err.Error())
+		// 		return err
+		// 	}
+		// }
 		// 返回 nil 提交事务
 		return nil
 	})
