@@ -136,17 +136,21 @@ func CommentActionResponseRpc2Api(m *douyin_comment.CommentActionResponse) *douy
 			IsFollow:      m.Comment.User.IsFollow,
 		}
 	}
-	comment := douyin_api.Comment{
-		ID:         m.Comment.Id,
-		User:       &user,
-		Content:    m.Comment.Content,
-		CreateDate: m.Comment.CreateDate,
+
+	var comment *douyin_api.Comment
+	if m.Comment != nil {
+		comment = &douyin_api.Comment{
+			ID:         m.Comment.Id,
+			User:       &user,
+			Content:    m.Comment.Content,
+			CreateDate: m.Comment.CreateDate,
+		}
 	}
 
 	return &douyin_api.CommentActionResponse{
 		StatusCode: m.StatusCode,
 		StatusMsg:  m.StatusMsg,
-		Comment:    &comment,
+		Comment:    comment,
 	}
 }
 func FavoriteListResponseRpc2Api(m *douyin_favorite.FavoriteListResponse) *douyin_api.FavoriteListResponse {

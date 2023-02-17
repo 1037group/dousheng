@@ -64,3 +64,47 @@ func MinusFavoriteCount(ctx context.Context, tx *gorm.DB, video_id int64) error 
 	video := &sql.Video{VideoId: video_id}
 	return tx.Model(&video).UpdateColumn(sql.SQL_VIDEO_VIDEO_FAVORITE_COUNT, gorm.Expr(sql.SQL_VIDEO_VIDEO_FAVORITE_COUNT+" - ?", 1)).Error
 }
+
+func GetFavoriteCount(ctx context.Context, tx *gorm.DB, video_id int64) (int64, error) {
+	klog.CtxInfof(ctx, "[db.UpdateFavoriteCount] video_id : %+v\n", video_id)
+
+	video := &sql.Video{VideoId: video_id}
+	res := tx.First(&video)
+	return video.VideoFavoriteCount, res.Error
+}
+
+func UpdateFavoriteCount(ctx context.Context, tx *gorm.DB, video_id int64, param map[string]interface{}) error {
+	klog.CtxInfof(ctx, "[db.UpdateFavoriteCount] video_id : %+v\n", video_id)
+
+	video := &sql.Video{VideoId: video_id}
+	return tx.Model(&video).Updates(param).Error
+}
+
+func AddCommentCount(ctx context.Context, tx *gorm.DB, video_id int64) error {
+	klog.CtxInfof(ctx, "[db.AddCommentCount] video_id : %+v\n", video_id)
+
+	video := &sql.Video{VideoId: video_id}
+	return tx.Model(&video).UpdateColumn(sql.SQL_VIDEO_VIDEO_COMMENT_COUNT, gorm.Expr(sql.SQL_VIDEO_VIDEO_COMMENT_COUNT+" + ?", 1)).Error
+}
+
+func MinusCommentCount(ctx context.Context, tx *gorm.DB, video_id int64) error {
+	klog.CtxInfof(ctx, "[db.MinusCommentCount] video_id : %+v\n", video_id)
+
+	video := &sql.Video{VideoId: video_id}
+	return tx.Model(&video).UpdateColumn(sql.SQL_VIDEO_VIDEO_COMMENT_COUNT, gorm.Expr(sql.SQL_VIDEO_VIDEO_COMMENT_COUNT+" - ?", 1)).Error
+}
+
+func UpdateCommentCount(ctx context.Context, tx *gorm.DB, video_id int64, param map[string]interface{}) error {
+	klog.CtxInfof(ctx, "[db.UpdateCommentCount] video_id : %+v\n", video_id)
+
+	video := &sql.Video{VideoId: video_id}
+	return tx.Model(&video).Updates(param).Error
+}
+
+func GetCommentCount(ctx context.Context, tx *gorm.DB, video_id int64) (int64, error) {
+	klog.CtxInfof(ctx, "[db.GetCommentCount] video_id : %+v\n", video_id)
+
+	video := &sql.Video{VideoId: video_id}
+	res := tx.First(&video)
+	return video.VideoCommentCount, res.Error
+}

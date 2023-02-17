@@ -2,14 +2,15 @@ package main
 
 import (
 	"context"
+	"time"
+
 	"github.com/1037group/dousheng/dal/db"
 	douyin_comment "github.com/1037group/dousheng/kitex_gen/douyin_comment"
 	"github.com/1037group/dousheng/kitex_gen/douyin_user"
 	"github.com/1037group/dousheng/pack"
 	"github.com/1037group/dousheng/pkg/configs/sql"
-	"github.com/1037group/dousheng/pkg/errno"
 	"github.com/cloudwego/kitex/pkg/klog"
-	"time"
+	"gorm.io/gorm"
 )
 
 // CommentServiceImpl implements the last service interface defined in the IDL.
@@ -31,13 +32,26 @@ func (s *CommentServiceImpl) CommentAction(ctx context.Context, req *douyin_comm
 			Ctime:          t,
 			Utime:          t,
 		}
-		err = db.CreateComment(ctx, db.DB, &comment)
-		if err != nil {
-			klog.CtxInfof(ctx, err.Error())
-			return nil, errno.ParamErr
-		}
 
-		user, err := db.GetUserByID(ctx, db.DB, req.UserId)
+		var user *sql.User
+		err = db.DB.Transaction(func(tx *gorm.DB) error {
+			err = db.CreateComment(ctx, tx, &comment)
+			if err != nil {
+				return err
+			}
+
+			user, err = db.GetUserByID(ctx, tx, req.UserId)
+			if err != nil {
+				return err
+			}
+			//使用redis
+			// err = db.AddCommentCount(ctx, tx, req.VideoId)
+			// if err != nil {
+			// 	return err
+			// }
+
+			return nil
+		})
 		if err != nil {
 			klog.CtxInfof(ctx, err.Error())
 			return nil, err
@@ -57,11 +71,27 @@ func (s *CommentServiceImpl) CommentAction(ctx context.Context, req *douyin_comm
 			StatusMsg:  &msg,
 			Comment:    commentinfo,
 		}, nil
+
 	case 2:
-		err := db.DeleteComment(ctx, db.DB, *req.CommentId)
+
+		err = db.DB.Transaction(func(tx *gorm.DB) error {
+			err = db.DeleteComment(ctx, tx, *req.CommentId)
+			if err != nil {
+				return err
+			}
+			//使用redis
+			// err = db.MinusCommentCount(ctx, tx, req.VideoId)
+			// if err != nil {
+			// 	return err
+			// }
+
+			return nil
+		})
 		if err != nil {
+			klog.CtxInfof(ctx, err.Error())
 			return nil, err
 		}
+
 		msg := "delete comment success"
 		return &douyin_comment.CommentActionResponse{
 			StatusCode: 0,

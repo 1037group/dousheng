@@ -5,6 +5,7 @@ package main
 import (
 	"github.com/1037group/dousheng/cmd/api/biz/mw"
 	"github.com/1037group/dousheng/cmd/api/biz/rpc"
+	"github.com/1037group/dousheng/cmd/mykafka"
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/hertz-contrib/obs-opentelemetry/tracing"
@@ -16,6 +17,7 @@ import (
 func Init() {
 	rpc.Init()
 	mw.InitJWT()
+	mykafka.Init()
 	// hlog init
 	hlog.SetLevel(hlog.LevelInfo)
 }

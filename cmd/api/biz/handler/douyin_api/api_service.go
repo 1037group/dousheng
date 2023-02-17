@@ -9,8 +9,11 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/1037group/dousheng/cmd/mykafka"
+	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
+
 	"github.com/1037group/dousheng/cmd/api/biz/logic"
-	douyin_api "github.com/1037group/dousheng/cmd/api/biz/model/douyin_api"
+	"github.com/1037group/dousheng/cmd/api/biz/model/douyin_api"
 	"github.com/1037group/dousheng/cmd/api/biz/mw"
 	"github.com/1037group/dousheng/cmd/api/biz/rpc"
 	"github.com/1037group/dousheng/kitex_gen/douyin_comment"
@@ -21,6 +24,7 @@ import (
 	"github.com/1037group/dousheng/kitex_gen/douyin_relation"
 	"github.com/1037group/dousheng/kitex_gen/douyin_user"
 	"github.com/1037group/dousheng/pack"
+	localconsts "github.com/1037group/dousheng/pkg/consts"
 	"github.com/1037group/dousheng/pkg/errno"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
@@ -47,7 +51,7 @@ func Feed(ctx context.Context, c *app.RequestContext) {
 			Code int32 `json:"code"`
 		}
 		var jwtUnauthorized JwtUnauthorized
-		json.Unmarshal(c.Response.Body(), &jwtUnauthorized)
+		_ = json.Unmarshal(c.Response.Body(), &jwtUnauthorized)
 
 		if jwtUnauthorized.Code == errno.AuthorizationFailedErr.ErrCode {
 			hlog.CtxErrorf(ctx, errno.AuthorizationFailedErr.ErrMsg)
@@ -271,6 +275,7 @@ func FavoriteAction(ctx context.Context, c *app.RequestContext) {
 	var req douyin_api.FavoriteActionRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
+		hlog.CtxErrorf(ctx, err.Error())
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
@@ -280,19 +285,40 @@ func FavoriteAction(ctx context.Context, c *app.RequestContext) {
 	userId := user.(*douyin_api.User).ID
 	hlog.CtxInfof(ctx, "userId: %+v", userId)
 
-	rpcResp, err := rpc.FavoriteAction(ctx, &douyin_favorite.FavoriteActionRequest{
+	rpcReq := &douyin_favorite.FavoriteActionRequest{
 		UserId:     userId,
 		VideoId:    req.VideoID,
 		ActionType: req.ActionType,
-	})
-	hlog.CtxInfof(ctx, "[FavoriteAction] api call rpc end. rpcResp: %+v", rpcResp)
+	}
+
+	jsonRpcReq, err := json.Marshal(rpcReq)
+	if err != nil {
+		hlog.CtxErrorf(ctx, err.Error())
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	// 发送至消息队列
+	// Produce messages to topic (asynchronously)
+	topic := localconsts.TopicFavoriteAction
+	err = mykafka.KafukaProducerProducer.Produce(&kafka.Message{
+		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
+		Value:          jsonRpcReq,
+	}, nil)
+	if err != nil {
+		hlog.CtxErrorf(ctx, err.Error())
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
+
+	hlog.CtxInfof(ctx, "[FavoriteAction] api call mykafka end.")
 	if err != nil {
 		c.String(consts.StatusInternalServerError, err.Error())
 		return
 	}
 	resp := douyin_api.FavoriteActionResponse{
-		StatusCode: rpcResp.StatusCode,
-		StatusMsg:  rpcResp.StatusMsg,
+		StatusCode: 0,
+		StatusMsg:  nil,
 	}
 
 	c.JSON(consts.StatusOK, resp)
@@ -337,21 +363,55 @@ func CommentAction(ctx context.Context, c *app.RequestContext) {
 	reqUserId := reqUser.(*douyin_api.User).ID
 	hlog.CtxInfof(ctx, "reqUserId: %+v", reqUserId)
 
-	rpcResp, err := rpc.CommentAction(ctx, &douyin_comment.CommentActionRequest{
+	//rpc调用
+	// rpcResp, err := rpc.CommentAction(ctx, &douyin_comment.CommentActionRequest{
+	// 	UserId:      reqUserId,
+	// 	VideoId:     req.VideoID,
+	// 	ActionType:  req.ActionType,
+	// 	CommentText: req.CommentText,
+	// 	CommentId:   req.CommentID,
+	// })
+	rpcReq := &douyin_comment.CommentActionRequest{
 		UserId:      reqUserId,
 		VideoId:     req.VideoID,
 		ActionType:  req.ActionType,
 		CommentText: req.CommentText,
 		CommentId:   req.CommentID,
-	})
-	hlog.CtxInfof(ctx, "[CommentAction] api call rpc end. rpcResp: %+v", rpcResp)
+	}
+
+	jsonRpcReq, err := json.Marshal(rpcReq)
 	if err != nil {
+		hlog.CtxErrorf(ctx, err.Error())
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	// Produce messages to topic (asynchronously)
+	topic := localconsts.TopicCommentAction
+	err = mykafka.KafukaProducerProducer.Produce(&kafka.Message{
+		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
+		Value:          jsonRpcReq,
+	}, nil)
+	if err != nil {
+		hlog.CtxErrorf(ctx, err.Error())
 		c.String(consts.StatusInternalServerError, err.Error())
 		return
 	}
 
-	resp := pack.CommentActionResponseRpc2Api(rpcResp)
+	hlog.CtxInfof(ctx, "[CommentAction] api call mykafka end.")
 
+	rpcResp, err := rpc.CommentAction(ctx, rpcReq)
+	if err != nil {
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
+	hlog.CtxInfof(ctx, "[CommentAction] rpc call end.")
+	resp := pack.CommentActionResponseRpc2Api(rpcResp)
+	// resp := douyin_api.CommentActionResponse{
+	// 	StatusCode: 0,
+	// 	StatusMsg:  nil,
+	// 	Comment:    nil,
+	// }
 	c.JSON(consts.StatusOK, resp)
 }
 
@@ -416,24 +476,53 @@ func RelationAction(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
-
-	// rpc
-	rpcResp, err := rpc.RelationAction(ctx, &douyin_relation.RelationActionRequest{
+	//不做rpc调用，而是先把请求打包，并转为json串再发送给消息队列
+	rpcReq := &douyin_relation.RelationActionRequest{
 		ReqUserId:  reqUserId,
 		ToUserId:   toUserId,
 		ActionType: int32(actionType),
-	})
-	hlog.CtxInfof(ctx, "[RelationAction] api call rpc end. rpcResp: %+v", rpcResp)
+	}
+
+	jsonRpcReq, err := json.Marshal(rpcReq)
+	if err != nil {
+		hlog.CtxErrorf(ctx, err.Error())
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+	// 发送至消息队列
+	topic := localconsts.TopicRelationAction
+	err = mykafka.KafukaProducerProducer.Produce(&kafka.Message{
+		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
+		Value:          jsonRpcReq,
+	}, nil)
 	if err != nil {
 		hlog.CtxErrorf(ctx, err.Error())
 		c.String(consts.StatusInternalServerError, err.Error())
 		return
 	}
 
+	hlog.CtxInfof(ctx, "[RelationAction] api call mykafka end.")
+	//rpc调用
+	rpcResp, err := rpc.RelationAction(ctx, &douyin_relation.RelationActionRequest{
+		ReqUserId:  reqUserId,
+		ToUserId:   toUserId,
+		ActionType: int32(actionType),
+	})
+	if err != nil {
+		hlog.CtxErrorf(ctx, err.Error())
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
+	hlog.CtxInfof(ctx, "[RelationAction] rpc call end.")
 	resp := &douyin_api.RelationActionResponse{
 		StatusCode: rpcResp.StatusCode,
 		StatusMsg:  rpcResp.StatusMsg,
 	}
+
+	// resp := &douyin_api.RelationActionResponse{
+	// 	StatusCode: 0,
+	// 	StatusMsg:  nil,
+	// }
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -534,12 +623,12 @@ func MessageChat(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	User, _ := c.Get(mw.JwtMiddleware.IdentityKey)
-	UserId := User.(*douyin_api.User).ID
-	hlog.CtxInfof(ctx, "userId: %+v", UserId)
+	user, _ := c.Get(mw.JwtMiddleware.IdentityKey)
+	userId := user.(*douyin_api.User).ID
+	hlog.CtxInfof(ctx, "userId: %+v", userId)
 
 	rpcResp, err := rpc.MessageChat(ctx, &douyin_message.MessageChatRequest{
-		UserId:   UserId,
+		UserId:   userId,
 		ToUserId: req.ToUserID,
 	})
 
@@ -575,7 +664,7 @@ func MessageAction(ctx context.Context, c *app.RequestContext) {
 	rpcResp, err := rpc.MessageAction(ctx, &douyin_message.MessageActionRequest{
 		UserId:     UserId,
 		ToUserId:   req.ToUserID,
-		ActionType: int32(actionType),
+		ActionType: actionType,
 		Content:    req.Content,
 	})
 	hlog.CtxInfof(ctx, "[MessageAction] api call rpc end. rpcResp: %+v", rpcResp)
