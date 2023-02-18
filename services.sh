@@ -67,6 +67,6 @@ case "$1" in
 		echo "monitor restart sucess"
 		;;
 	* )
-		echo "you can use ./services start|stop|restart"
+		echo "you can use ./services.sh start|stop|restart"
 		;;
 esac

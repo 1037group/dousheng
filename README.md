@@ -4,5 +4,12 @@
 make
 go mod tidy
 make go_build
+./services.sh start
 ```
-/cmd下有多个对应服务，启动多个rpc服务和api服务
+/cmd下有api服务和多个rpc服务
+
+`./services.sh start` 启动服务
+
+`./services.sh restart` 重启服务
+
+`./services.sh stop` 重启服务
