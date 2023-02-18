@@ -158,10 +158,10 @@ func updateDB(ctx context.Context, modelName string, id int64, param map[string]
 	switch modelName {
 	case ModelNameVideo:
 		klog.CtxInfof(ctx, "---------UpdateFavoriteCount---------, %+v,%+v", id, param)
-		err = db.UpdateFavoriteCount(ctx, db.DB, id, param)
+		err = db.UpdateVideo(ctx, db.DB, id, param)
 	case ModelNameUser:
 		klog.CtxInfof(ctx, "---------UpdateFollow(er)Count---------, %+v,%+v", id, param)
-		err = db.UpdateFollowCount(ctx, db.DB, id, param)
+		err = db.UpdateUser(ctx, db.DB, id, param)
 	}
 	return err
 }

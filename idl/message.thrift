@@ -31,7 +31,17 @@ struct MessageActionResponse {
     2: optional string status_msg
 }
 
+struct MessageSetUnReadRequest {
+    1: required i64 req_user_id
+}
+
+struct MessageSetUnReadResponse {
+    1: required i32 status_code
+    2: optional string status_msg
+}
+
 service MessageService {
     MessageChatResponse MessageChat(1: MessageChatRequest req)
     MessageActionResponse MessageAction(1: MessageActionRequest req)
+    MessageSetUnReadResponse MessageSetUnRead(1: MessageSetUnReadRequest req)
 }

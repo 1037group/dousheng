@@ -56,3 +56,19 @@ func (s *MessageServiceImpl) MessageAction(ctx context.Context, req *douyin_mess
 		StatusMsg:  &msg,
 	}, nil
 }
+
+// MessageSetUnRead implements the MessageServiceImpl interface.
+func (s *MessageServiceImpl) MessageSetUnRead(ctx context.Context, req *douyin_message.MessageSetUnReadRequest) (resp *douyin_message.MessageSetUnReadResponse, err error) {
+	klog.CtxInfof(ctx, "[MessageSetUnRead] %+v", req)
+	err = logic.MessageSetUnRead(ctx, req)
+	if err != nil {
+		klog.CtxErrorf(ctx, err.Error())
+		return nil, err
+	}
+
+	msg := "Send message UnRead success"
+	return &douyin_message.MessageSetUnReadResponse{
+		StatusCode: 0,
+		StatusMsg:  &msg,
+	}, nil
+}

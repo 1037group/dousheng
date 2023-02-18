@@ -73,8 +73,8 @@ func GetFavoriteCount(ctx context.Context, tx *gorm.DB, video_id int64) (int64, 
 	return video.VideoFavoriteCount, res.Error
 }
 
-func UpdateFavoriteCount(ctx context.Context, tx *gorm.DB, video_id int64, param map[string]interface{}) error {
-	klog.CtxInfof(ctx, "[db.UpdateFavoriteCount] video_id : %+v\n", video_id)
+func UpdateVideo(ctx context.Context, tx *gorm.DB, video_id int64, param map[string]interface{}) error {
+	klog.CtxInfof(ctx, "[db.UpdateVideo] video_id: %+v, param: %+v\n", video_id, param)
 
 	video := &sql.Video{VideoId: video_id}
 	return tx.Model(&video).Updates(param).Error

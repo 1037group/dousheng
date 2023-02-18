@@ -22,7 +22,7 @@ func GetCommentActionConsumer(ctx context.Context) {
 	c, err := kafka.NewConsumer(&kafka.ConfigMap{
 		"bootstrap.servers": consts.KafkaHost,
 		"group.id":          "myGroup",
-		"auto.offset.reset": "earliest",
+		"auto.offset.reset": "latest",
 	})
 
 	if err != nil {
@@ -69,7 +69,11 @@ func GetCommentActionConsumer(ctx context.Context) {
 					continue
 				}
 				klog.CtxInfof(ctx, "[GetCommentActionConsumer] CommentCount: %+v", commentCount)
-				redis.Set(ctx, hashKey, hashFieldName, strconv.FormatInt(commentCount+1, 10))
+				if operatorType == redis.Add {
+					redis.Set(ctx, hashKey, hashFieldName, strconv.FormatInt(commentCount+1, 10))
+				} else {
+					redis.Set(ctx, hashKey, hashFieldName, strconv.FormatInt(commentCount-1, 10))
+				}
 			} else {
 				// 存在则更新redis的值
 				_, err = redis.UpdateCachedCount(ctx, redis.ModelNameComment, redis.VideoCommentCount, req.VideoId, operatorType)
@@ -89,7 +93,7 @@ func GetRelationActionConsumer(ctx context.Context) {
 	c, err := kafka.NewConsumer(&kafka.ConfigMap{
 		"bootstrap.servers": consts.KafkaHost,
 		"group.id":          "myGroup",
-		"auto.offset.reset": "earliest",
+		"auto.offset.reset": "latest",
 	})
 	if err != nil {
 		panic(err)
@@ -136,7 +140,11 @@ func GetRelationActionConsumer(ctx context.Context) {
 					continue
 				}
 				klog.CtxInfof(ctx, "[GetRelationActionConsumer] followCount: %+v", followCount)
-				redis.Set(ctx, hashKey, hashFieldName1, strconv.FormatInt(followCount+1, 10))
+				if operatorType == redis.Add {
+					redis.Set(ctx, hashKey, hashFieldName1, strconv.FormatInt(followCount+1, 10))
+				} else {
+					redis.Set(ctx, hashKey, hashFieldName1, strconv.FormatInt(followCount-1, 10))
+				}
 			} else {
 				// 存在则更新redis的值
 				_, err = redis.UpdateCachedCount(ctx, redis.ModelNameUser, redis.UserFollowCount, req.ReqUserId, operatorType)
@@ -153,7 +161,11 @@ func GetRelationActionConsumer(ctx context.Context) {
 					continue
 				}
 				klog.CtxInfof(ctx, "[GetRelationActionConsumer] followerCount: %+v", followerCount)
-				redis.Set(ctx, hashKey, hashFieldName2, strconv.FormatInt(followerCount+1, 10))
+				if operatorType == redis.Add {
+					redis.Set(ctx, hashKey, hashFieldName2, strconv.FormatInt(followerCount+1, 10))
+				} else {
+					redis.Set(ctx, hashKey, hashFieldName2, strconv.FormatInt(followerCount-1, 10))
+				}
 			} else {
 				// 存在则更新redis的值
 				_, err = redis.UpdateCachedCount(ctx, redis.ModelNameUser, redis.UserFollowerCount, req.ToUserId, operatorType)
@@ -175,7 +187,7 @@ func GetFavoriteActionConsumer(ctx context.Context) {
 	c, err := kafka.NewConsumer(&kafka.ConfigMap{
 		"bootstrap.servers": consts.KafkaHost,
 		"group.id":          "myGroup",
-		"auto.offset.reset": "earliest",
+		"auto.offset.reset": "latest",
 	})
 
 	if err != nil {
@@ -226,7 +238,11 @@ func GetFavoriteActionConsumer(ctx context.Context) {
 					continue
 				}
 				klog.CtxInfof(ctx, "[GetFavoriteActionConsumer] favoriteCount: %+v", favoriteCount)
-				redis.Set(ctx, hashKey, hashFieldName, strconv.FormatInt(favoriteCount+1, 10))
+				if operatorType == redis.Add {
+					redis.Set(ctx, hashKey, hashFieldName, strconv.FormatInt(favoriteCount+1, 10))
+				} else {
+					redis.Set(ctx, hashKey, hashFieldName, strconv.FormatInt(favoriteCount-1, 10))
+				}
 			} else {
 				// 存在则更新redis的值
 				_, err = redis.UpdateCachedCount(ctx, redis.ModelNameFavorite, redis.VideoFavoriteCount, req.VideoId, operatorType)

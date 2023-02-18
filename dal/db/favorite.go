@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/1037group/dousheng/pkg/configs/sql"
@@ -56,13 +57,12 @@ func CreateFavorite(ctx context.Context, tx *gorm.DB, favor *sql.Favorite) error
 }
 
 // 更新点赞信息
-func UpdateFavorite(ctx context.Context, tx *gorm.DB, user_id int64, video_id int64, utime time.Time, action_type int32) error {
-	klog.CtxInfof(ctx, "[CancelFavorite] user_id: %+v\n", user_id)
+func UpdateFavoriteISFAVORITE(ctx context.Context, tx *gorm.DB, user_id int64, video_id int64, utime time.Time, action_type int32) error {
+	klog.CtxInfof(ctx, "[UpdateFavoriteISFAVORITE] user_id: %+v\n", user_id)
 
-	query := sql.SQL_FAVORITE_USER_ID + " = ?"
-	query1 := sql.SQL_FAVORITE_VIDEO_ID + " = ?"
+	query := fmt.Sprintf("%s = ? and %s = ?", sql.SQL_FAVORITE_USER_ID, sql.SQL_FAVORITE_VIDEO_ID)
 	if action_type == 1 {
-		return tx.Model(sql.Favorite{}).Where(query, user_id).Where(query1, video_id).UpdateColumns(map[string]interface{}{sql.SQL_FAVORITE_ISFAVORITE: 1, sql.SQL_FAVORITE_UTIME: utime}).Error
+		return tx.Model(sql.Favorite{}).Where(query, user_id, video_id).UpdateColumns(map[string]interface{}{sql.SQL_FAVORITE_ISFAVORITE: 1, sql.SQL_FAVORITE_UTIME: utime}).Error
 	}
-	return tx.Model(sql.Favorite{}).Where(query, user_id).Where(query1, video_id).UpdateColumns(map[string]interface{}{sql.SQL_FAVORITE_ISFAVORITE: 0, sql.SQL_FAVORITE_UTIME: utime}).Error
+	return tx.Model(sql.Favorite{}).Where(query, user_id, video_id).UpdateColumns(map[string]interface{}{sql.SQL_FAVORITE_ISFAVORITE: 0, sql.SQL_FAVORITE_UTIME: utime}).Error
 }

@@ -19,8 +19,9 @@ func NewServiceInfo() *kitex.ServiceInfo {
 	serviceName := "MessageService"
 	handlerType := (*douyin_message.MessageService)(nil)
 	methods := map[string]kitex.MethodInfo{
-		"MessageChat":   kitex.NewMethodInfo(messageChatHandler, newMessageServiceMessageChatArgs, newMessageServiceMessageChatResult, false),
-		"MessageAction": kitex.NewMethodInfo(messageActionHandler, newMessageServiceMessageActionArgs, newMessageServiceMessageActionResult, false),
+		"MessageChat":      kitex.NewMethodInfo(messageChatHandler, newMessageServiceMessageChatArgs, newMessageServiceMessageChatResult, false),
+		"MessageAction":    kitex.NewMethodInfo(messageActionHandler, newMessageServiceMessageActionArgs, newMessageServiceMessageActionResult, false),
+		"MessageSetUnRead": kitex.NewMethodInfo(messageSetUnReadHandler, newMessageServiceMessageSetUnReadArgs, newMessageServiceMessageSetUnReadResult, false),
 	}
 	extra := map[string]interface{}{
 		"PackageName": "douyin_message",
@@ -72,6 +73,24 @@ func newMessageServiceMessageActionResult() interface{} {
 	return douyin_message.NewMessageServiceMessageActionResult()
 }
 
+func messageSetUnReadHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*douyin_message.MessageServiceMessageSetUnReadArgs)
+	realResult := result.(*douyin_message.MessageServiceMessageSetUnReadResult)
+	success, err := handler.(douyin_message.MessageService).MessageSetUnRead(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newMessageServiceMessageSetUnReadArgs() interface{} {
+	return douyin_message.NewMessageServiceMessageSetUnReadArgs()
+}
+
+func newMessageServiceMessageSetUnReadResult() interface{} {
+	return douyin_message.NewMessageServiceMessageSetUnReadResult()
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -97,6 +116,16 @@ func (p *kClient) MessageAction(ctx context.Context, req *douyin_message.Message
 	_args.Req = req
 	var _result douyin_message.MessageServiceMessageActionResult
 	if err = p.c.Call(ctx, "MessageAction", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) MessageSetUnRead(ctx context.Context, req *douyin_message.MessageSetUnReadRequest) (r *douyin_message.MessageSetUnReadResponse, err error) {
+	var _args douyin_message.MessageServiceMessageSetUnReadArgs
+	_args.Req = req
+	var _result douyin_message.MessageServiceMessageSetUnReadResult
+	if err = p.c.Call(ctx, "MessageSetUnRead", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

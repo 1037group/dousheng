@@ -1,5 +1,6 @@
 CREATE TABLE `message` (
                            `message_id` bigint NOT NULL AUTO_INCREMENT,
+                           `store_by_user_id` bigint NOT NULL,
                            `user_id` bigint NOT NULL,
                            `to_user_id` bigint NOT NULL,
                            `message_content` varchar(255) NOT NULL,

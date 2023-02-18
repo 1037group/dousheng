@@ -48,7 +48,7 @@ func Feed(ctx context.Context, c *app.RequestContext) {
 		// parse userId from token
 		mw.JwtMiddleware.MiddlewareFunc()(ctx, c)
 		type JwtUnauthorized struct {
-			Code int32 `json:"code"`
+			Code int32 `json:"status_code"`
 		}
 		var jwtUnauthorized JwtUnauthorized
 		_ = json.Unmarshal(c.Response.Body(), &jwtUnauthorized)
@@ -84,6 +84,26 @@ func Feed(ctx context.Context, c *app.RequestContext) {
 func UserLogin(ctx context.Context, c *app.RequestContext) {
 	hlog.CtxInfof(ctx, "[UserLogin] api is called.")
 	mw.JwtMiddleware.LoginHandler(ctx, c)
+
+	type JwtAuthorized struct {
+		Code   int32 `json:"status_code"`
+		UserId int64 `json:"user_id"`
+	}
+	var jwtAuthorized JwtAuthorized
+	_ = json.Unmarshal(c.Response.Body(), &jwtAuthorized)
+
+	if jwtAuthorized.Code == errno.Success.ErrCode {
+		hlog.CtxInfof(ctx, errno.Success.ErrMsg)
+
+		req := &douyin_message.MessageSetUnReadRequest{
+			ReqUserId: jwtAuthorized.UserId,
+		}
+		_, err := rpc.MessageSetUnRead(ctx, req)
+		if err != nil {
+			hlog.CtxErrorf(ctx, err.Error())
+		}
+		return
+	}
 }
 
 // UserRegister .

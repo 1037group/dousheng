@@ -52,7 +52,7 @@ func FavoriteAction(ctx context.Context, req *douyin_favorite.FavoriteActionRequ
 	// 需要事务
 	t := time.Now()
 	err = db.DB.Transaction(func(tx *gorm.DB) error {
-		err = db.UpdateFavorite(ctx, tx, req.UserId, req.VideoId, t, req.ActionType)
+		err = db.UpdateFavoriteISFAVORITE(ctx, tx, req.UserId, req.VideoId, t, req.ActionType)
 		// redis处理点赞计数
 		//if req.ActionType == 1 {
 		//	err = db.AddFavoriteCount(ctx, tx, req.VideoId)

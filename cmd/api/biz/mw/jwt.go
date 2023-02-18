@@ -75,8 +75,8 @@ func InitJWT() {
 		Unauthorized: func(ctx context.Context, c *app.RequestContext, code int, message string) {
 			hlog.CtxErrorf(ctx, "[Unauthorized] jwt")
 			c.JSON(http.StatusOK, utils.H{
-				"code":    errno.AuthorizationFailedErr.ErrCode,
-				"message": message,
+				"status_code": errno.AuthorizationFailedErr.ErrCode,
+				"message":     message,
 			})
 		},
 		HTTPStatusMessageFunc: func(e error, ctx context.Context, c *app.RequestContext) string {

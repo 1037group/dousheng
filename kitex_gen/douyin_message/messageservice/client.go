@@ -13,6 +13,7 @@ import (
 type Client interface {
 	MessageChat(ctx context.Context, req *douyin_message.MessageChatRequest, callOptions ...callopt.Option) (r *douyin_message.MessageChatResponse, err error)
 	MessageAction(ctx context.Context, req *douyin_message.MessageActionRequest, callOptions ...callopt.Option) (r *douyin_message.MessageActionResponse, err error)
+	MessageSetUnRead(ctx context.Context, req *douyin_message.MessageSetUnReadRequest, callOptions ...callopt.Option) (r *douyin_message.MessageSetUnReadResponse, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -52,4 +53,9 @@ func (p *kMessageServiceClient) MessageChat(ctx context.Context, req *douyin_mes
 func (p *kMessageServiceClient) MessageAction(ctx context.Context, req *douyin_message.MessageActionRequest, callOptions ...callopt.Option) (r *douyin_message.MessageActionResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.MessageAction(ctx, req)
+}
+
+func (p *kMessageServiceClient) MessageSetUnRead(ctx context.Context, req *douyin_message.MessageSetUnReadRequest, callOptions ...callopt.Option) (r *douyin_message.MessageSetUnReadResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.MessageSetUnRead(ctx, req)
 }

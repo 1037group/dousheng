@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"sort"
 	"time"
 
 	"github.com/1037group/dousheng/dal/db"
@@ -15,16 +16,32 @@ import (
 func GetMessageList(ctx context.Context, req *douyin_message.MessageChatRequest) ([]*sql.Message, error) {
 	klog.CtxInfof(ctx, "[logic.GetMessageList] req: %+v", req)
 
-	res, err := db.MGetMessageList(ctx, db.DB, &req.UserId, &req.ToUserId)
-	if err != nil {
-		klog.CtxErrorf(ctx, err.Error())
-		return res, err
-	}
+	var err error
+	var resA2B []*sql.Message
+	var resB2A []*sql.Message
 
 	// 需要事务
 	t := time.Now()
 	err = db.DB.Transaction(func(tx *gorm.DB) error {
-		err = db.MUpdateMessageList(ctx, tx, &req.UserId, &req.ToUserId, t)
+		resA2B, err = db.MGetMessageList(ctx, tx, &req.UserId, &req.UserId, &req.ToUserId)
+		if err != nil {
+			klog.CtxErrorf(ctx, err.Error())
+			return err
+		}
+
+		resB2A, err = db.MGetMessageList(ctx, tx, &req.UserId, &req.ToUserId, &req.UserId)
+		if err != nil {
+			klog.CtxErrorf(ctx, err.Error())
+			return err
+		}
+
+		err = db.MUpdateMessageListMESSAGE_IS_READ(ctx, tx, &req.UserId, &req.UserId, &req.ToUserId, t)
+		if err != nil {
+			klog.CtxErrorf(ctx, err.Error())
+			return err
+		}
+
+		err = db.MUpdateMessageListMESSAGE_IS_READ(ctx, tx, &req.UserId, &req.ToUserId, &req.UserId, t)
 		if err != nil {
 			klog.CtxErrorf(ctx, err.Error())
 			return err
@@ -33,8 +50,14 @@ func GetMessageList(ctx context.Context, req *douyin_message.MessageChatRequest)
 	})
 	if err != nil {
 		klog.CtxErrorf(ctx, err.Error())
-		return res, err
+		return nil, err
 	}
 
+	res := sql.MessageSort{}
+	res = append(res, resA2B...)
+	res = append(res, resB2A...)
+
+	// 排序
+	sort.Sort(res)
 	return res, nil
 }

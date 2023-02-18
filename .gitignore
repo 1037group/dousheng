@@ -30,3 +30,5 @@ cmd/api/api
 #ignore tmp/
 tmp/
 
+nohup.out
+

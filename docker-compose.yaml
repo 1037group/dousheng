@@ -119,11 +119,21 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
 
-#
+
 #  docker exec broker \
 #  kafka-topics --bootstrap-server broker:9092 \
 #  --create \
 #  --topic topic_favorite_action
+#
+#  docker exec broker \
+#  kafka-topics --bootstrap-server broker:9092 \
+#  --create \
+#  --topic topic_comment_action
+#
+#  docker exec broker \
+#  kafka-topics --bootstrap-server broker:9092 \
+#  --create \
+#  --topic topic_relation_action
 
 #  #
 #  portainer:

@@ -104,15 +104,8 @@ func GetFollowerCount(ctx context.Context, tx *gorm.DB, userId int64) (int64, er
 	return user.UserFollowerCount, res.Error
 }
 
-func UpdateFollowCount(ctx context.Context, tx *gorm.DB, userId int64, param map[string]interface{}) error {
-	klog.CtxInfof(ctx, "[db.UpdateFollowCount] userId : %+v\n", userId)
-
-	user := &sql.User{UserId: userId}
-	return tx.Model(&user).Updates(param).Error
-}
-
-func UpdateFollowerCount(ctx context.Context, tx *gorm.DB, userId int64, param map[string]interface{}) error {
-	klog.CtxInfof(ctx, "[db.UpdateFollowerCount] userId : %+v\n", userId)
+func UpdateUser(ctx context.Context, tx *gorm.DB, userId int64, param map[string]interface{}) error {
+	klog.CtxInfof(ctx, "[db.UpdateUser] userId: %+v param: %+v\n", userId, param)
 
 	user := &sql.User{UserId: userId}
 	return tx.Model(&user).Updates(param).Error

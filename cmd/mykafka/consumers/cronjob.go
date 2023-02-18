@@ -19,10 +19,10 @@ func newWithSeconds() *cron.Cron {
 func ExecuteVideoCron(ctx context.Context) {
 
 	c := newWithSeconds()
-	//定时任务：如果没有配置，默认每分钟执行一次
+	//定时任务：如果没有配置，默认每3s执行一次
 	spec := consts.Scep
 	if spec == "" {
-		spec = "@every 1m"
+		spec = "@every 3s"
 	}
 	var e error
 	// VIDEO相关,user相关

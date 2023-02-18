@@ -36,3 +36,9 @@ func (p *MessageActionRequest) IsValid() error {
 func (p *MessageActionResponse) IsValid() error {
 	return nil
 }
+func (p *MessageSetUnReadRequest) IsValid() error {
+	return nil
+}
+func (p *MessageSetUnReadResponse) IsValid() error {
+	return nil
+}

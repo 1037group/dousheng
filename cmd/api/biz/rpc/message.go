@@ -63,3 +63,14 @@ func MessageChat(ctx context.Context, req *douyin_message.MessageChatRequest) (r
 	}
 	return resp, nil
 }
+
+func MessageSetUnRead(ctx context.Context, req *douyin_message.MessageSetUnReadRequest) (resp *douyin_message.MessageSetUnReadResponse, err error) {
+	resp, err = messageClient.MessageSetUnRead(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode != 0 {
+		return nil, errno.NewErrNo(resp.StatusCode, *resp.StatusMsg)
+	}
+	return resp, nil
+}
