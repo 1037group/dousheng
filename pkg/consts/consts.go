@@ -12,10 +12,10 @@ const (
 	RelationServiceName = "relation_service"
 	UserServiceName     = "user_service"
 
-	MySQLDefaultDSN = "gorm:gorm@tcp(localhost:3306)/gorm?charset=utf8&parseTime=True&loc=Local"
+	MySQLDefaultDSN = "gorm:gorm@tcp(172.24.64.1:3306)/gorm?charset=utf8&parseTime=True&loc=Local"
 	TCP             = "tcp"
-	//"172.31.192.1"
-	RedisIp         = "localhost"
+	//"172.24.64.1"
+	RedisIp         = "172.24.64.1"
 	RedisPort       = "6379"
 	RedisExpireTime = 600
 
@@ -30,12 +30,12 @@ const (
 	ExportEndpoint = ":4317"
 	ETCDAddress    = "127.0.0.1:2379"
 	DefaultLimit   = 10
-
+	DefaultMaxQPS  = 10000
 	// cronjob
 	Scep = ""
 
 	// mykafka
-	KafkaHost = "localhost:9092" // 配置为
+	KafkaHost = "172.24.64.1:9092" // 配置为
 
 	TopicFavoriteAction = "topic_favorite_action"
 	TopicCommentAction  = "topic_comment_action"

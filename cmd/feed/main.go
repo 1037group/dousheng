@@ -1,6 +1,8 @@
 package main
 
 import (
+	"net"
+
 	"github.com/1037group/dousheng/dal"
 	"github.com/1037group/dousheng/kitex_gen/douyin_feed/feedservice"
 	"github.com/1037group/dousheng/pkg/consts"
@@ -13,7 +15,6 @@ import (
 	"github.com/kitex-contrib/obs-opentelemetry/provider"
 	"github.com/kitex-contrib/obs-opentelemetry/tracing"
 	etcd "github.com/kitex-contrib/registry-etcd"
-	"net"
 )
 
 func Init() {
@@ -43,7 +44,7 @@ func main() {
 	svr := feedservice.NewServer(new(FeedServiceImpl),
 		server.WithServiceAddr(addr),
 		server.WithRegistry(r),
-		server.WithLimit(&limit.Option{MaxConnections: 1000, MaxQPS: 100}),
+		server.WithLimit(&limit.Option{MaxConnections: 1000, MaxQPS: consts.DefaultMaxQPS}),
 		server.WithMuxTransport(),
 		server.WithMiddleware(mw.CommonMiddleware),
 		server.WithMiddleware(mw.ServerMiddleware),

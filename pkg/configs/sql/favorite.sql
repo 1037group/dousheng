@@ -7,5 +7,6 @@ CREATE TABLE `favorite` (
                            `utime` datetime NOT NULL,
                            `ctime` datetime NOT NULL,
                            PRIMARY KEY (`favorite_id`),
+                           KEY `index_video_id_isfavorite` (`user_id`,`isfavorite`),
                            UNIQUE KEY `uk_user_video_id` (`user_id`,`video_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
